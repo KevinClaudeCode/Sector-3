@@ -66,4 +66,2470 @@ body.touch #invPanel{top:8px;bottom:8px;transform:none;max-height:none;width:min
 .beltGrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
 .bagGrid{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) minmax(0,.4fr)}
 .cell{padding:4px}
-.slot{clip-path:none;width:100%;aspect-ratio:1;background:#1b1e21;border:1px solid 
+.slot{clip-path:none;width:100%;aspect-ratio:1;background:#1b1e21;border:1px solid #2f3438;color:var(--ink);padding:4px;touch-action:none;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:.66rem;font-weight:600;line-height:1.1;text-align:center;user-select:none;-webkit-user-select:none}
+.slot:hover{background:#23272b}
+.slot svg{width:46%;height:auto;pointer-events:none}
+.slot span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none}
+.slot.empty{background:transparent;border-style:dashed;border-color:#2a2e32}
+.slot.sel{border-color:var(--ink);background:#262a2e}
+.slot.dragging{opacity:.35}
+.slot.over{border-color:var(--water);border-style:solid}
+.beltGrid .slot{aspect-ratio:3/4;border-color:#4a4330}
+.beltGrid .slot span{display:none}
+.beltGrid .slot svg{width:62%}
+.beltGrid .slot.empty{border-color:#3a3528}
+.beltGrid .slot.sel{border-color:var(--brass)}
+@media (max-width:480px){.beltGrid .slot span{display:none}.beltGrid .slot svg{width:62%}}
+/* the bag cover: fabric, zipper teeth and the slider are drawn on a canvas over the slots */
+.bagGrid{margin-top:4px;background:#0b0c0d}
+#bagCover{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+.zipPull{position:absolute;z-index:3;top:calc(50% - 13px);width:34px;height:58px;margin-left:-17px;padding:0;border:0;background:none;clip-path:none;
+  cursor:grab;touch-action:none;filter:drop-shadow(0 3px 3px rgba(0,0,0,0.7))}
+.zipPull:hover{background:none}
+.zipPull:active{cursor:grabbing}
+.zipPull svg{width:100%;height:100%;overflow:visible;pointer-events:none}
+.zipPull:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+.detail{margin-top:10px;min-height:6.5rem}
+.detail h3{margin:0 0 .25rem;font-size:1.08rem}
+.detail p{margin:0 0 .8rem;color:#b5bab6;line-height:1.5;font-size:.92rem}
+.detail .muted{color:var(--dim)}
+.detail .note{color:var(--brass)}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.actions button{padding:.55rem 1.2rem;font-size:.95rem}
+.actions .danger{background:transparent;color:#e0766f;border:1px solid #6e2d29;clip-path:none}
+.actions .danger:hover{background:rgba(200,50,43,0.15)}
+/* slot extras: stack counts, fill levels, packets still in a cup */
+.slot{position:relative}
+.slot .badge{position:absolute;right:3px;top:2px;font-style:normal;font-size:.68rem;font-weight:700;color:#f1e6d0;background:rgba(0,0,0,0.55);padding:0 3px}
+.slot .lvl{position:absolute;left:5px;right:5px;bottom:4px;height:3px;background:rgba(255,255,255,0.12)}
+.slot .lvl i{display:block;height:100%;background:var(--water)}
+.slot .lvl.food i{background:#e0a84a}
+.slot .tabs{position:absolute;right:-3px;top:8px;display:flex;flex-direction:column;gap:2px}
+.slot .tabs i{display:block;width:9px;height:12px;border:1px solid rgba(0,0,0,0.5)}
+.slot .tabs .s{background:#b3372a}.slot .tabs .t{background:#4f8a3a}
+
+/* water dispenser panel */
+#cookPanel{position:fixed;left:16px;top:16px;width:min(380px,calc(100vw - 32px));max-height:calc(100vh - 32px);
+  overflow:auto;background:#0e1012;border:1px solid #33383c;padding:14px 16px 16px;z-index:5;cursor:default}
+#cookPanel[hidden]{display:none}
+body.touch #cookPanel{top:8px;bottom:8px;transform:none;max-height:none;width:min(380px,48vw);left:8px}
+@media (orientation:portrait){body.touch #cookPanel{left:0;right:0;top:auto;bottom:0;width:auto;height:64vh;border-width:1px 0 0}}
+.tank{display:flex;align-items:center;gap:10px;margin:4px 0 8px;flex-wrap:wrap}
+.tankBar{flex:1;min-width:120px;height:10px;background:#0b0d0f;border:1px solid #2f3438}
+#tankFill{height:100%;background:var(--water);width:0}
+#tankText{color:var(--dim);font-size:.85rem}
+#station.dropping{outline:2px solid var(--water);outline-offset:-2px}
+#cookBag .secHead{margin-top:14px}
+/* phones: the panel scrolls; the bag stays the same size as in the inventory */
+@media (orientation:portrait){body.touch #cookPanel{height:84vh}}
+#cookPanel{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+
+#station{display:block;width:100%;height:390px;background:#15181b;touch-action:none;margin-top:6px}
+.step{margin:8px 0;color:#b5bab6;font-size:.92rem;line-height:1.45;min-height:2.6em}
+#cookActs{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+#cookActs .note{flex-basis:100%;margin:4px 0 0;color:var(--brass);font-size:.88rem}
+#cookActs button{padding:.55rem 1.1rem;font-size:.92rem}
+#cookActs .pour{background:#3fa9f5;color:#04121d;touch-action:none;user-select:none;-webkit-user-select:none}
+#cookActs .pour:active{background:#8fcfff}
+#cookActs button:disabled{background:#2a2e32;color:var(--dim);cursor:not-allowed}
+
+/* close-up of eating or drinking */
+#actView{position:fixed;left:50%;bottom:118px;transform:translateX(-50%);width:250px;background:#0e1012;border:1px solid #33383c;padding:8px;z-index:6}
+#actView[hidden]{display:none}
+#actCv{display:block;width:100%;height:130px}
+.actRow{display:flex;align-items:center;gap:8px;margin-top:6px}
+#actText{flex:1;font-size:.8rem;color:#b5bab6}
+body.touch #actView{bottom:auto;top:calc(12px + env(safe-area-inset-top));width:210px}
+body.touch #actCv{height:110px}
+@media (orientation:portrait){body.touch #actView{top:176px}}
+
+#ghost{position:fixed;width:54px;height:54px;margin:-27px 0 0 -27px;pointer-events:none;z-index:20;display:none;
+  background:#262a2e;border:1px solid var(--ink);align-items:center;justify-content:center}
+#ghost svg{width:60%}
+@media (max-height:520px){.card h1{font-size:2.2rem}.card p{font-size:.9rem;margin-bottom:.55rem}.card .who{margin-bottom:.7rem}.keys{margin:.6rem 0 1rem;font-size:.85rem}}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="touchUI" class="touch-only">
+  <button class="tbtn" id="tPause" aria-label="Pause">Pause</button>
+  <button class="tbtn" id="tBag" aria-label="Open inventory">Bag</button>
+  <button class="tbtn big" id="tReload" aria-label="Reload">Reload</button>
+  <button class="tbtn" id="tMap" aria-label="Show or hide the map">Map</button>
+</div>
+<button id="tPick" class="ctx touch-only" hidden>Pick up</button>
+<button id="tDoor" class="ctx touch-only" hidden>Close door</button>
+
+<div id="invPanel" role="dialog" aria-label="Inventory" hidden>
+  <div class="invHead"><h2>Inventory</h2><button class="ghost" id="invClose">Close</button></div>
+  <div class="secHead">Utility belt <span id="beltCount"></span></div>
+  <div class="beltGrid" id="beltGrid"></div>
+  <div id="bagHome"><div id="bagSection">
+  <div class="secHead">Bag <span id="bagState"></span></div>
+  <div class="bagGrid" id="bagGrid">
+    <canvas id="bagCover" aria-hidden="true"></canvas>
+    <button class="zipPull" id="zipPull" role="slider" aria-label="Bag zipper. Drag it to the right to unzip." aria-valuemin="0" aria-valuemax="100">
+      <svg viewBox="0 0 34 58" aria-hidden="true">
+        <defs><linearGradient id="zmetal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e2ddc9"/><stop offset=".5" stop-color="#aaa48d"/><stop offset="1" stop-color="#6f6a59"/></linearGradient></defs>
+        <g id="zipTab">
+          <circle cx="17" cy="15" r="3.2" fill="none" stroke="#5f5b4f" stroke-width="2"/>
+          <path d="M11.5 17h11l1.5 30a5 5 0 0 1-5 5h-5a5 5 0 0 1-5-5z" fill="url(#zmetal)" stroke="#4e4a3f" stroke-width="1.2"/>
+          <rect x="14.5" y="36" width="5" height="9" rx="2.5" fill="#2a2a24"/>
+          <path d="M13.5 21h7" stroke="#f3eedb" stroke-opacity=".6" stroke-width="1"/>
+        </g>
+        <path d="M3 5.5 L31 9 L31 17 L3 20.5 Q1 13 3 5.5z" fill="url(#zmetal)" stroke="#4e4a3f" stroke-width="1.2"/>
+        <path d="M6 8.5 L27 11" stroke="#f3eedb" stroke-opacity=".7" stroke-width="1"/>
+      </svg>
+    </button>
+  </div>
+  </div></div>
+  <div class="detail" id="detail"></div>
+</div>
+<div id="ghost"></div>
+
+<div id="cookPanel" role="dialog" aria-label="Water dispenser" hidden>
+  <div class="invHead"><h2>Water dispenser</h2><button class="ghost" id="cookClose">Close</button></div>
+  <div class="tank"><div class="tankBar"><div id="tankFill"></div></div><span id="tankText"></span></div>
+  <canvas id="station"></canvas>
+  <p class="step" id="stepText"></p>
+  <div id="cookActs"></div>
+  <div id="cookBag"></div>
+</div>
+
+<div id="actView" hidden>
+  <canvas id="actCv"></canvas>
+  <div class="actRow"><span id="actText"></span><button class="ghost" id="actStop">Stop <span class="mouse-only">(Q)</span></button></div>
+</div>
+
+<div class="screen" id="startScreen">
+  <div class="card">
+    <h1>Sector 3</h1>
+    <p class="who">MCC Sentinel Carrie, designation 03006</p>
+    <p>Common is dormant and most of the lights are out. Entities are grey, like the walls they move along. Your flashlight shows one direction at a time.</p>
+    <p>Stay alive. Scavenge instant noodles, Blue Water and Strikefish magazines. Magazines ride on Carrie's utility belt. Everything else goes in her bag, which has to be unzipped by hand before she can reach into it, and an open bag can lose things. The world doesn't stop while she digs through it.</p>
+    <p>The command room is your base. Seal its blast doors to keep entities out, and fix broken doors with steel alloy and a repair kit. Its water dispenser boils Blue Water for cooking noodles properly. Eating and drinking take time, so pick your moment.</p>
+    <div class="keys touch-only">
+      <b>Left thumb</b><span>Move. The flashlight turns with you.</span>
+      <b>Right thumb</b><span>Drag to aim and fire the V1-Strikefish</span>
+      <b>Pick up / Use</b><span>Appear when Carrie is close to an item, a blast door or the dispenser</span>
+      <b>Bag</b><span>Open the inventory. Grab the zipper pull and drag it to unzip.</span>
+      <b>Tip</b><span>Landscape gives you the widest view</span>
+    </div>
+    <div class="keys mouse-only">
+      <b>WASD</b><span>Move</span>
+      <b>Mouse</b><span>Aim the rifle and flashlight</span>
+      <b>Hold click</b><span>Fire the V1-Strikefish</span>
+      <b>R</b><span>Reload from the utility belt</span>
+      <b>E</b><span>Pick up the item Carrie is standing by</span>
+      <b>F</b><span>Use a blast door or the water dispenser</span>
+      <b>Q</b><span>Stop eating or drinking</span>
+      <b>I</b><span>Open the inventory. Grab the zipper pull and drag it to unzip.</span>
+      <b>M</b><span>Show or hide the map</span>
+      <b>P / Esc</b><span>Pause</span>
+    </div>
+    <button id="startBtn">Start patrol</button>
+  </div>
+</div>
+
+<div class="screen" id="pauseScreen" hidden>
+  <div class="card">
+    <h1>Paused</h1>
+    <p class="who">Sector 3 waits. It isn't patient.</p>
+    <button id="resumeBtn">Resume patrol</button>
+  </div>
+</div>
+
+<div class="screen" id="deadScreen" hidden>
+  <div class="card">
+    <h1>Signal lost</h1>
+    <p class="who" id="deathCause">Carrie 03006 stopped checking in.</p>
+    <div class="stats" id="deathStats"></div>
+    <button id="retryBtn">Start a new patrol</button>
+  </div>
+</div>
+<script>
+(() => {
+"use strict";
+/* =====================================================================
+   MFC: Sector 3
+   Layout of this script:
+     1. Core        constants and helpers
+     2. World       map, rooms, blast doors, tile queries
+     3. Physics     raycasts, line of sight, collision
+     4. Lights      wall lamps
+     5. Items       item definitions
+     6. Inv         inventory model: utility belt + zipped bag
+     7. G           game state and reset
+     8. Systems     flow field, spawning, doors, combat, AI, pickups, needs
+     9. Input       keyboard, mouse, touch sticks
+    10. Draw        world, lighting, HUD, minimap
+    11. InvUI       inventory panel: zip, drag and drop, actions
+    12. Flow        screens, main loop, boot
+   ===================================================================== */
+
+/* ---------- 1. Core ---------- */
+const $ = id => document.getElementById(id);
+const T = 32, W = 100, H = 70;
+const WALL = 0, FLOOR = 1, VOID = 2, GRATE = 3, SEALED = 4, CRATE = 5, TABLE = 6, DOOR = 7;
+const FONT = '"Chakra Petch","Segoe UI",system-ui,sans-serif';
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+/* ---------- 2. World ---------- */
+const World = (() => {
+  const map = new Uint8Array(W * H), rooms = [];
+  const doors = [], doorAt = new Int16Array(W * H).fill(-1);
+  const BASE = {x:44, y:30, w:12, h:9};
+  const DOOR_HP = 225;
+  function carve(x, y, w, h, t){
+    for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++)
+      if (i > 0 && j > 0 && i < W - 1 && j < H - 1) map[j * W + i] = t;
+  }
+  function room(name, x, y, w, h, loot){ carve(x, y, w, h, FLOOR); rooms.push({name, x, y, w, h, loot}); }
+
+  room("Command Room", 44, 30, 12, 9, false);
+  carve(22, 33, 22, 3, FLOOR); carve(56, 33, 20, 3, FLOOR);
+  carve(48, 12, 3, 18, FLOOR); carve(48, 39, 3, 16, FLOOR);
+  carve(6, 24, 16, 22, VOID); carve(6, 33, 16, 3, GRATE); carve(12, 24, 3, 22, GRATE);
+  rooms.push({name:"Void Hall", x:6, y:24, w:16, h:22, loot:false, label:false});
+  room("Barracks", 8, 14, 14, 10, true);
+  room("Maintenance", 8, 46, 14, 10, true);
+  room("Pump Alcove", 2, 31, 4, 7, true);
+  room("Canteen", 40, 4, 20, 8, true);
+  carve(19, 7, 3, 7, FLOOR); carve(19, 7, 21, 3, FLOOR);
+  room("Logistics Storage", 40, 55, 22, 10, true);
+  carve(19, 56, 3, 5, FLOOR); carve(19, 58, 21, 3, FLOOR);
+  carve(76, 20, 18, 30, VOID);
+  carve(76, 33, 18, 3, GRATE); carve(76, 20, 18, 2, GRATE); carve(76, 48, 18, 2, GRATE);
+  carve(76, 20, 2, 30, GRATE); carve(92, 20, 2, 30, GRATE);
+  carve(94, 33, 1, 3, SEALED);
+  room("Relay Room", 78, 12, 12, 7, true); carve(83, 19, 3, 1, FLOOR);
+  room("Water Reclamation", 78, 51, 12, 8, true); carve(83, 50, 3, 1, FLOOR);
+  carve(51, 30, 4, 1, TABLE);
+  [[42,6],[52,6],[42,9],[52,9]].forEach(([x,y]) => carve(x, y, 4, 1, TABLE));
+  [[9,16],[9,20],[20,17]].forEach(([x,y]) => carve(x, y, 1, 3, TABLE));
+  [[43,57],[47,57],[55,57],[43,61],[55,61]].forEach(([x,y]) => carve(x, y, 2, 2, CRATE));
+  carve(58, 58, 2, 3, CRATE);
+  carve(10, 48, 2, 2, CRATE); carve(17, 50, 2, 2, CRATE); carve(10, 52, 2, 1, CRATE);
+  carve(80, 13, 2, 1, TABLE); carve(86, 13, 2, 1, TABLE);
+  carve(80, 53, 2, 2, CRATE); carve(86, 53, 2, 2, CRATE);
+  carve(55, 31, 1, 1, TABLE);   // water dispenser stand in the command room
+
+  function addDoor(name, tiles){
+    const d = {name, tiles, vertical: tiles[0][0] === tiles[1][0], open:true, o:1, hp:DOOR_HP, broken:false, hit:0, warned:-99, wasSolid:false,
+      cx: tiles.reduce((a, t) => a + t[0] + 0.5, 0) / tiles.length * T,
+      cy: tiles.reduce((a, t) => a + t[1] + 0.5, 0) / tiles.length * T};
+    tiles.forEach(([x, y]) => { map[y * W + x] = DOOR; doorAt[y * W + x] = doors.length; });
+    doors.push(d);
+  }
+  addDoor("West", [[43,33],[43,34],[43,35]]);
+  addDoor("East", [[56,33],[56,34],[56,35]]);
+  addDoor("North", [[48,29],[49,29],[50,29]]);
+  addDoor("South", [[48,39],[49,39],[50,39]]);
+
+  const doorSolid = d => !d.broken && (!d.open || d.o < 0.9);
+  const tileAt = (tx, ty) => (tx < 0 || ty < 0 || tx >= W || ty >= H) ? WALL : map[ty * W + tx];
+  const doorOf = (tx, ty) => doors[doorAt[ty * W + tx]];
+  const opaque = (tx, ty) => { const t = tileAt(tx, ty); return t === WALL || t === SEALED || t === CRATE || (t === DOOR && doorSolid(doorOf(tx, ty))); };
+  const walkable = (tx, ty) => { const t = tileAt(tx, ty); return t === FLOOR || t === GRATE || (t === DOOR && !doorSolid(doorOf(tx, ty))); };
+  const flowPass = (tx, ty) => walkable(tx, ty) || tileAt(tx, ty) === DOOR;
+  const inBase = (x, y) => x > BASE.x * T && x < (BASE.x + BASE.w) * T && y > BASE.y * T && y < (BASE.y + BASE.h) * T;
+  return {map, rooms, doors, doorAt, BASE, DOOR_HP, doorSolid, tileAt, opaque, walkable, flowPass, inBase};
+})();
+const {map, rooms, doors, doorAt, BASE, DOOR_HP, doorSolid, tileAt, opaque, walkable, flowPass, inBase} = World;
+
+/* ---------- 3. Physics ---------- */
+function castRay(x, y, dx, dy, max){
+  let tx = Math.floor(x / T), ty = Math.floor(y / T);
+  const sx = dx > 0 ? 1 : -1, sy = dy > 0 ? 1 : -1;
+  const dX = Math.abs(T / dx), dY = Math.abs(T / dy);
+  let mx = dx > 0 ? ((tx + 1) * T - x) / dx : dx < 0 ? (x - tx * T) / -dx : Infinity;
+  let my = dy > 0 ? ((ty + 1) * T - y) / dy : dy < 0 ? (y - ty * T) / -dy : Infinity;
+  let d = 0;
+  for (let n = 0; n < 200; n++){
+    if (mx < my){ d = mx; mx += dX; tx += sx; } else { d = my; my += dY; ty += sy; }
+    if (d > max) return max;
+    if (opaque(tx, ty)) return d;
+  }
+  return max;
+}
+function visPoly(x, y, a0, a1, rays, max, pad){
+  const pts = [];
+  for (let i = 0; i <= rays; i++){
+    const a = a0 + (a1 - a0) * i / rays, c = Math.cos(a), s = Math.sin(a);
+    const d = Math.min(max, castRay(x, y, c, s, max) + pad);
+    pts.push(x + c * d, y + s * d);
+  }
+  return pts;
+}
+function hasLOS(x0, y0, x1, y1){
+  const dx = x1 - x0, dy = y1 - y0, d = Math.hypot(dx, dy);
+  if (d < 1) return true;
+  return castRay(x0, y0, dx / d, dy / d, d) >= d - 1;
+}
+function circleHitsTile(x, y, r, tx, ty){
+  const cx = clamp(x, tx * T, tx * T + T), cy = clamp(y, ty * T, ty * T + T);
+  return (x - cx) ** 2 + (y - cy) ** 2 < r * r;
+}
+function collides(x, y, r){
+  const x0 = Math.floor((x - r) / T), x1 = Math.floor((x + r) / T);
+  const y0 = Math.floor((y - r) / T), y1 = Math.floor((y + r) / T);
+  for (let ty = y0; ty <= y1; ty++) for (let tx = x0; tx <= x1; tx++)
+    if (!walkable(tx, ty) && circleHitsTile(x, y, r, tx, ty)) return true;
+  return false;
+}
+function move(o, dx, dy){
+  let hit = false;
+  if (!collides(o.x + dx, o.y, o.r)) o.x += dx; else hit = true;
+  if (!collides(o.x, o.y + dy, o.r)) o.y += dy; else hit = true;
+  return hit;
+}
+function dropSpot(p){
+  for (const off of [Math.PI, Math.PI * 0.6, -Math.PI * 0.6, Math.PI / 2, -Math.PI / 2, 0]){
+    const x = p.x + Math.cos(p.a + off) * 24, y = p.y + Math.sin(p.a + off) * 24;
+    if (!collides(x, y, 4)) return {x, y};
+  }
+  return {x:p.x, y:p.y};
+}
+
+/* ---------- 4. Lights ---------- */
+const Lights = (() => {
+  // [tileX, tileY, radius, r,g,b, mode]  mode: 0 steady, 1 flicker, 2 slow blink, 3 dying
+  const defs = [
+    [50,30.7,250,255,214,160,0],[45,37.6,150,255,214,160,1],
+    [30,33.35,170,190,215,230,0],[38,35.65,160,190,215,230,1],[64,33.35,170,190,215,230,0],
+    [48.35,20,150,190,215,230,3],[50.65,47,150,230,60,50,2],
+    [44,4.6,200,255,220,170,0],[56,4.6,200,255,220,170,1],
+    [10,14.6,180,200,210,220,0],[20.5,23.4,140,200,210,220,3],
+    [6.4,34.5,190,90,150,255,1],[13.5,24.5,130,190,215,230,3],
+    [10,55.4,180,230,70,50,2],
+    [42,55.6,210,255,214,160,0],[60.5,64.4,210,255,214,160,1],
+    [77,21,200,80,220,230,0],[92.6,48.6,200,80,220,230,1],[93.5,34.5,140,230,40,40,2],
+    [84,12.6,170,190,215,230,0],[84,58.4,170,60,160,255,0],
+    [30,7.4,150,190,215,230,3],[30,60.4,150,190,215,230,1]
+  ];
+  const lamps = defs.map(([tx,ty,r,cr,cg,cb,mode]) => {
+    const x = tx * T, y = ty * T;
+    return {x, y, r, col:[cr,cg,cb], mode, on:1, timer:0, poly:visPoly(x, y, 0, Math.PI * 2, 180, r, 6)};
+  });
+  function refreshNear(d){
+    for (const L of lamps) if (Math.hypot(L.x - d.cx, L.y - d.cy) < L.r + T * 2) L.poly = visPoly(L.x, L.y, 0, Math.PI * 2, 180, L.r, 6);
+  }
+  function update(dt, time){
+    for (const L of lamps){
+      if (L.mode === 1){ L.timer -= dt; if (L.timer <= 0){ L.on = L.on ? (Math.random() < 0.5 ? 0 : 0.5) : 1; L.timer = L.on === 1 ? 0.5 + Math.random() * 4 : 0.04 + Math.random() * 0.12; } }
+      else if (L.mode === 2) L.on = 0.55 + 0.45 * Math.sin(time * 2.2);
+      else if (L.mode === 3){ L.timer -= dt; if (L.timer <= 0){ L.on = Math.random() < 0.7 ? 0.08 : 0.6; L.timer = 0.05 + Math.random() * (L.on > 0.3 ? 0.08 : 2.5); } }
+    }
+  }
+  return {lamps, refreshNear, update};
+})();
+
+/* ---------- 5. Items ----------
+   Items are objects with state:
+     food    {state:"sealed"|"open", packets:bool, portion:0..1, seasoned:bool}
+     cooked  {portion:0..1, hunger, thirst}
+     water   {amount:0..1}            a Blue Water bottle, can be half drunk
+     packets {count:1..9}             seasoning + toppings pair, a stackable mini item
+     mag, alloy, kit                  plain */
+const ICON = {
+  sealed:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="#d8d0b8"/><circle cx="12" cy="12" r="8.6" fill="#b7bcc2"/><circle cx="12" cy="12" r="3.4" fill="#b3372a"/><path d="M19.2 4.2l3.2-1.6.9 3.2z" fill="#c9ced3"/></svg>',
+  open:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="#d8d0b8"/><circle cx="12" cy="12" r="8.6" fill="#2a241a"/><rect x="6.5" y="6.5" width="11" height="11" rx="2.5" fill="#e3c56d"/><path d="M7 9.2q1.4-1.3 2.7 0t2.7 0 2.7 0 2.4 0M7 12q1.4-1.3 2.7 0t2.7 0 2.7 0 2.4 0M7 14.8q1.4-1.3 2.7 0t2.7 0 2.7 0 2.4 0" fill="none" stroke="#b58f37" stroke-width="1"/></svg>',
+  cooked:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="#d8d0b8"/><circle cx="12" cy="12" r="8.6" fill="#a8602a"/><path d="M5.5 10q2-2 4 0t4 0 4 0M6 13.5q2-2 4 0t4 0 4 0M7.5 16.5q1.8-1.6 3.5 0t3.5 0" fill="none" stroke="#f0d57e" stroke-width="1.3"/><circle cx="9" cy="8" r="1.1" fill="#6fae4a"/><circle cx="15.5" cy="15" r="1.1" fill="#6fae4a"/><rect x="14" y="8" width="2" height="2" fill="#d98a3a"/></svg>',
+  packets:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="10" height="13" rx="1" fill="#b3372a" transform="rotate(-10 8 11)"/><rect x="11" y="6" width="10" height="13" rx="1" fill="#4f8a3a" transform="rotate(8 16 12)"/><path d="M5 8h6M13 9h6" stroke="#f1e6d0" stroke-width="1.2" opacity=".7"/></svg>',
+  water:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="3" fill="#e8eef2"/><rect x="6" y="5" width="12" height="17" rx="2" fill="#1c6fb0"/><rect x="6" y="11" width="12" height="4" fill="#e8eef2"/></svg>',
+  alloy:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8l5-4h13v12l-5 4H3z" fill="#7d858c"/><path d="M3 8h13v12H3z" fill="#9aa2a8"/><path d="M16 8l5-4v12l-5 4z" fill="#5f666c"/></svg>',
+  kit:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="4" rx="1" fill="none" stroke="#b9b2a0" stroke-width="2"/><rect x="3" y="7" width="18" height="14" rx="2" fill="#c8662a"/><path d="M12 10v8M8 14h8" stroke="#f1e6d0" stroke-width="2.4"/></svg>',
+  mag:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="1" width="6" height="4" fill="#c9a54a"/><path d="M7 5h10l-1 18H8z" fill="#3a3f44"/><rect x="9" y="8" width="6" height="2" fill="#555c62"/></svg>'
+};
+const ITEMS = {
+  food:{color:"#e0a84a"}, cooked:{color:"#e0a84a"}, packets:{color:"#d9823b"}, water:{color:"#3fa9f5"},
+  alloy:{color:"#aab2b8"}, kit:{color:"#d9823b"}, mag:{color:"#c9a54a"}
+};
+function newItem(type){
+  if (type === "food") return {type, state:"sealed", packets:true, portion:1, seasoned:false};
+  if (type === "water") return {type, amount:1};
+  if (type === "packets") return {type, count:1};
+  return {type};
+}
+function iconOf(it){ return it.type === "food" ? (it.state === "sealed" ? ICON.sealed : ICON.open) : ICON[it.type]; }
+function nameOf(it){
+  switch (it.type){
+    case "food": return it.state === "sealed" ? "Instant noodles" : "Opened instant noodles";
+    case "cooked": return "Cooked noodles";
+    case "packets": return it.count > 1 ? `Seasoning & toppings ×${it.count}` : "Seasoning & toppings";
+    case "water": return "Blue Water";
+    case "alloy": return "Steel alloy";
+    case "kit": return "Repair kit";
+    default: return "Strikefish magazine";
+  }
+}
+function shortName(it){
+  return {food: it.state === "sealed" ? "Noodles" : "Open cup", cooked:"Cooked", packets:"Packets", water:"Blue Water", alloy:"Steel alloy", kit:"Repair kit", mag:"Magazine"}[it.type];
+}
+const pct = v => Math.round(v * 100) + "%";
+function descOf(it){
+  switch (it.type){
+    case "food":
+      if (it.state === "sealed") return "A sealed cup of instant noodles with a seasoning and toppings packet inside. Peel the lid to eat it raw, or cook it at the command room's water dispenser.";
+      return "The lid is off and the dry noodle brick is showing. Raw noodles fill Carrie up less and dry her out; the seasoning makes both stronger. Cooked at the dispenser they're much better."
+        + (it.portion < 0.999 ? ` About ${pct(it.portion)} is left.` : "")
+        + (it.packets ? " The seasoning and toppings packets are still in the cup." : it.seasoned ? " The seasoning has already been sprinkled on." : "");
+    case "cooked": return `Hot noodles in broth. The soup helps with thirst too.${it.portion < 0.999 ? ` About ${pct(it.portion)} is left.` : ""} Careful: an open bag will spill it.`;
+    case "packets": return `A seasoning packet and a toppings packet, counted as one small item. Up to 9 fit in one bag slot. Add extras when cooking for a more filling meal. ${it.count > 1 ? `There are ${it.count} here.` : ""}`;
+    case "water": return `OceanSky's 20-credit vitamin water, the price nobody was allowed to raise. Drink it a sip at a time, or pour it into the dispenser for cooking. ${pct(it.amount)} left.`;
+    case "alloy": return "A slab of salvaged steel alloy plate. Together with a repair kit, it can put a blast door back together.";
+    case "kit": return "An MCE field repair kit with a welder, rivets and sealant. It needs steel alloy to fix a blast door.";
+    default: return "A 60-round magazine for the V1-Strikefish. Only magazines on the utility belt can be reloaded from.";
+  }
+}
+// changes whenever anything visible about the item changes
+function itemKey(it){
+  if (!it) return "";
+  return [it.type, it.state, it.packets, it.seasoned, it.count, it.amount != null ? Math.round(it.amount * 40) : "", it.portion != null ? Math.round(it.portion * 40) : ""].join(":");
+}
+
+/* ---------- 6. Inv: utility belt + zipped bag ----------
+   The bag is 2 rows x 4 columns. The zipper runs left to right across
+   the middle of the bag: zip = 0 is fully closed, 1 is fully open.
+   The zipper runs PARK further than the slots so the slider parks
+   clear of them when fully open. Behind the slider the teeth part in
+   a V that is TAPER wide (both as a fraction of the slot area), so a
+   column is only reachable once the opening is full height across it:
+   zip * (1 + PARK) - TAPER >= (c+1)/4.
+   Anything in a column the opening has reached can fall out.
+   Packets stack up to STACK in one slot. */
+const Inv = (() => {
+  const BAG_COLS = 4, EPS = 1e-3, TAPER = 0.1, PARK = 0.1, STACK = 9;
+  const belt = {key:"belt", label:"Utility belt", size:6, accepts: t => t === "mag", slots:[]};
+  const bag  = {key:"bag",  label:"Bag", size:8, accepts: () => true, slots:[], zip:0};
+  const C = {belt, bag};
+  let ver = 0;
+  const bump = () => { ver++; };
+  const col = i => i % BAG_COLS;
+  const stackable = t => t === "packets";
+  function reset(){
+    belt.slots = Array(belt.size).fill(null);
+    bag.slots = Array(bag.size).fill(null);
+    for (let i = 0; i < 3; i++) belt.slots[i] = newItem("mag");
+    bag.zip = 0; bump();
+  }
+  const reachable = (c, i) => c === "belt" || bag.zip >= 1 - EPS || bag.zip * (1 + PARK) - TAPER >= (col(i) + 1) / BAG_COLS - EPS;
+  const atRisk = i => bag.zip * (1 + PARK) > col(i) / BAG_COLS + EPS;
+  const get = (c, i) => C[c].slots[i];
+  const count = (c, type) => C[c].slots.filter(s => s && s.type === type).length;
+  const used = c => C[c].slots.filter(Boolean).length;
+  function find(c, type, reachOnly){
+    return C[c].slots.findIndex((s, i) => s && s.type === type && (!reachOnly || reachable(c, i)));
+  }
+  function take(c, i){ const it = C[c].slots[i]; C[c].slots[i] = null; bump(); return it; }
+  // take a single mini item off a stack
+  function takeOne(c, i){
+    const it = C[c].slots[i]; if (!it) return null;
+    if (stackable(it.type) && it.count > 1){ it.count--; bump(); return {type:it.type, count:1}; }
+    return take(c, i);
+  }
+  function setZip(z){ z = clamp(z, 0, 1); if (Math.abs(z - bag.zip) > 1e-4){ bag.zip = z; bump(); } }
+  // where an item would go, or why it can't
+  function placeFor(item){
+    if (item.type === "mag"){ const i = belt.slots.indexOf(null); if (i >= 0) return {c:"belt", i}; }
+    if (stackable(item.type)){
+      const i = bag.slots.findIndex((s, k) => s && s.type === item.type && s.count + item.count <= STACK && reachable("bag", k));
+      if (i >= 0) return {c:"bag", i, merge:true};
+    }
+    const i = bag.slots.findIndex((s, k) => !s && reachable("bag", k));
+    if (i >= 0) return {c:"bag", i};
+    if (bag.slots.some(s => !s)) return {why:"zipped"};
+    return {why:"full"};
+  }
+  // put an item away, preferring a given slot (where it came from)
+  function add(item, pref){
+    if (!stackable(item.type) && pref && !C[pref.c].slots[pref.i] && reachable(pref.c, pref.i) && C[pref.c].accepts(item.type)){
+      C[pref.c].slots[pref.i] = item; bump(); return pref;
+    }
+    let at = placeFor(item);
+    if (at.why && stackable(item.type) && pref && !C[pref.c].slots[pref.i] && reachable(pref.c, pref.i)) at = {c:pref.c, i:pref.i};
+    if (at.why) return at;
+    if (at.merge) C.bag.slots[at.i].count += item.count; else C[at.c].slots[at.i] = item;
+    bump(); return at;
+  }
+  function moveItem(c1, i1, c2, i2){
+    if (c1 === c2 && i1 === i2) return null;
+    if (!reachable(c1, i1)) return "Unzip the bag past that slot first.";
+    if (!reachable(c2, i2)) return "That slot is still zipped. Open the bag further.";
+    const a = C[c1].slots[i1], b = C[c2].slots[i2];
+    if (!a) return null;
+    if (b && stackable(a.type) && a.type === b.type){
+      const n = Math.min(STACK - b.count, a.count);
+      if (n <= 0) return "That stack is full. Nine is the most one slot can hold.";
+      b.count += n; a.count -= n; if (a.count <= 0) C[c1].slots[i1] = null;
+      bump(); return null;
+    }
+    if (!C[c2].accepts(a.type) || (b && !C[c1].accepts(b.type))) return "The utility belt only holds magazines.";
+    C[c1].slots[i1] = b; C[c2].slots[i2] = a; bump();
+    return null;
+  }
+  function findWhere(c, fn){ return C[c].slots.findIndex((s, i) => s && reachable(c, i) && fn(s)); }
+  return {BAG_COLS, TAPER, PARK, STACK, belt, bag, C, get ver(){ return ver; }, bump, reset, reachable, atRisk, get, count, used, find, findWhere, take, takeOne, setZip, placeFor, add, moveItem, col, stackable};
+})();
+
+/* ---------- 7. G: game state ---------- */
+const G = {
+  state:"menu", showMap:true, invOpen:false, cookOpen:false,
+  hands:null,          // what Carrie is eating or drinking right now
+  player:null, entities:[], bullets:[], pickups:[], particles:[], toasts:[],
+  cam:{x:0, y:0}, flow:new Int16Array(W * H), explored:new Uint8Array(W * H),
+  time:0, kills:0, timers:{}, shake:0, hurtFlash:0, muzzle:0, lastShot:-9, cause:"",
+  nearItem:null, nearDoor:null, nearDisp:false, lastFullMsg:-9
+};
+const radioLines = [
+  "Radio: static. Logistics check-in says about thirty sentinels are still out there.",
+  "Radio: Common is still dormant. The server door won't answer.",
+  "Radio: grey on grey. If a wall moves, shoot it.",
+  "Radio: someone on another channel is counting rounds out loud.",
+  "Radio: static, then nothing."
+];
+function toast(text, color, life){
+  G.toasts.push({text, color: color || "#d6d9d3", life: life || 2.6, t:0});
+  if (G.toasts.length > 5) G.toasts.shift();
+}
+function reset(){
+  G.player = {x:(BASE.x + 3) * T, y:(BASE.y + 4.5) * T, r:11, a:0, hp:100, hunger:100, thirst:100, mag:60, reload:0, fireCd:0, resting:false};
+  Inv.reset();
+  G.entities = []; G.bullets = []; G.pickups = []; G.particles = []; G.toasts = [];
+  G.flow.fill(-1); G.explored.fill(0);
+  G.time = 0; G.kills = 0; G.shake = 0; G.hurtFlash = 0; G.muzzle = 0; G.lastShot = -9; G.cause = "";
+  G.timers = {spawn:1, pickup:0, flow:0, radio:45};
+  G.nearItem = null; G.nearDoor = null; G.nearDisp = false; G.hands = null;
+  Dispenser.reset(); Station.reset();
+  for (const d of doors){ Object.assign(d, {open:true, o:1, hp:DOOR_HP, broken:false, hit:0, warned:-99, wasSolid:false}); Lights.refreshNear(d); }
+  Flow.compute();
+  for (let i = 0; i < 34; i++) Spawn.pickup();
+  for (let i = 0; i < 7; i++) Spawn.entity(true);
+  toast("Radio: 03006, you're on your own out here. Keep the lights you have.", "#d6d9d3", 6);
+}
+
+/* ---------- 8. Systems ---------- */
+const Flow = (() => {
+  const queue = new Int32Array(W * H);
+  function compute(){
+    const flow = G.flow; flow.fill(-1);
+    const p = G.player, sx = Math.floor(p.x / T), sy = Math.floor(p.y / T);
+    if (!flowPass(sx, sy)) return;
+    let h = 0, tl = 0;
+    flow[sy * W + sx] = 0; queue[tl++] = sy * W + sx;
+    while (h < tl){
+      const c = queue[h++], d = flow[c];
+      if (d > 70) continue;
+      const cx = c % W, cy = (c / W) | 0;
+      for (const [a, b] of [[1,0],[-1,0],[0,1],[0,-1]]){
+        const nx = cx + a, ny = cy + b, ni = ny * W + nx;
+        if (flowPass(nx, ny) && flow[ni] < 0){ flow[ni] = d + 1; queue[tl++] = ni; }
+      }
+    }
+  }
+  function markExplored(){
+    const p = G.player, tx = Math.floor(p.x / T), ty = Math.floor(p.y / T);
+    for (let j = -7; j <= 7; j++) for (let i = -9; i <= 9; i++){
+      const x = tx + i, y = ty + j;
+      if (x >= 0 && y >= 0 && x < W && y < H) G.explored[y * W + x] = 1;
+    }
+  }
+  return {compute, markExplored};
+})();
+
+const Spawn = (() => {
+  const CAPS = {food:9, water:9, mag:8, alloy:4, kit:3, packets:3};
+  function lootTile(){
+    const lootRooms = rooms.filter(r => r.loot);
+    for (let n = 0; n < 40; n++){
+      const r = lootRooms[Math.floor(Math.random() * lootRooms.length)];
+      const tx = r.x + Math.floor(Math.random() * r.w), ty = r.y + Math.floor(Math.random() * r.h);
+      if (tileAt(tx, ty) === FLOOR) return [tx, ty];
+    }
+    return null;
+  }
+  function pickup(){
+    const counts = {food:0, water:0, mag:0, alloy:0, kit:0};
+    G.pickups.forEach(p => counts[p.type]++);
+    const want = Object.keys(CAPS).filter(k => counts[k] < CAPS[k]);
+    if (!want.length) return;
+    const type = want[Math.floor(Math.random() * want.length)];
+    const t = lootTile(); if (!t) return;
+    const x = (t[0] + 0.2 + Math.random() * 0.6) * T, y = (t[1] + 0.2 + Math.random() * 0.6) * T;
+    if (Math.hypot(x - G.player.x, y - G.player.y) < 200) return;
+    G.pickups.push({type, item:newItem(type), x, y, ph: Math.random() * 6});
+  }
+  function entity(initial){
+    const p = G.player;
+    for (let n = 0; n < 60; n++){
+      const tx = 1 + Math.floor(Math.random() * (W - 2)), ty = 1 + Math.floor(Math.random() * (H - 2));
+      if (!walkable(tx, ty)) continue;
+      if (tx >= BASE.x - 1 && tx <= BASE.x + BASE.w && ty >= BASE.y - 1 && ty <= BASE.y + BASE.h) continue;
+      const x = (tx + 0.5) * T, y = (ty + 0.5) * T;
+      if (Math.hypot(x - p.x, y - p.y) < (initial ? 700 : 560)) continue;
+      const stalker = Math.random() < Math.min(0.6, 0.3 + G.time / 60 * 0.05);
+      const e = stalker
+        ? {type:"stalker", r:15, hp:35, max:35, speed:100, dmg:12, cd:1.25}
+        : {type:"pest", r:8, hp:1, max:1, speed:170, dmg:4, cd:0.75};
+      Object.assign(e, {x, y, atk:0, chase:false, wx:x, wy:y, dir:Math.random() * 6.28, t:Math.random() * 10, flash:0, seed:Math.random(), vp:Math.random() * 6.28});
+      G.entities.push(e);
+      return;
+    }
+  }
+  function update(dt){
+    const tm = G.timers;
+    tm.pickup -= dt; if (tm.pickup <= 0){ tm.pickup = 7; pickup(); }
+    tm.spawn -= dt;
+    const maxE = Math.min(26, 8 + Math.floor(G.time / 60 * 2.5));
+    if (tm.spawn <= 0){ tm.spawn = 2.6; if (G.entities.length < maxE) entity(false); }
+  }
+  return {pickup, entity, update};
+})();
+
+const Doors = (() => {
+  function blocked(d){
+    const p = G.player;
+    return d.tiles.some(([tx, ty]) => circleHitsTile(p.x, p.y, p.r, tx, ty) || G.entities.some(e => circleHitsTile(e.x, e.y, e.r, tx, ty)));
+  }
+  const needsRepair = d => d.broken || d.hp < DOOR_HP;
+  // what's missing for a repair, using only items Carrie can actually reach
+  function repairProblem(){
+    const need = [];
+    for (const [type, label] of [["alloy", "steel alloy"], ["kit", "a repair kit"]]){
+      if (Inv.find("bag", type, true) < 0) need.push(Inv.find("bag", type, false) >= 0 ? label + " (zipped in the bag)" : label);
+    }
+    return need.length ? "To repair this door you need " + need.join(" and ") + "." : null;
+  }
+  function repair(d){
+    if (!needsRepair(d)) return false;
+    const why = repairProblem();
+    if (why){ toast(why, "#c8322b", 3); return false; }
+    Inv.take("bag", Inv.find("bag", "alloy", true)); Inv.take("bag", Inv.find("bag", "kit", true));
+    Object.assign(d, {broken:false, hp:DOOR_HP, open:true, o:1});
+    for (let i = 0; i < 14; i++) G.particles.push({x:d.cx + (Math.random() - 0.5) * 20, y:d.cy + (Math.random() - 0.5) * 80, vx:(Math.random() - 0.5) * 120, vy:(Math.random() - 0.5) * 120, life:0.4, t:0, c:"#ffd28a", s:1.5, glow:true});
+    toast(`${d.name} blast door repaired.`, "#9fd8c4");
+    return true;
+  }
+  function interact(){
+    const d = G.nearDoor; if (!d || G.state !== "play") return;
+    if (d.broken){ repair(d); return; }
+    if (d.open){
+      if (blocked(d)){ toast("Something is in the doorway.", "#c9a54a", 1.5); return; }
+      d.open = false;
+    } else d.open = true;
+  }
+  function hit(d, e){
+    d.hp -= e.dmg; e.atk = e.cd; d.hit = 0.2;
+    for (let i = 0; i < 4; i++) G.particles.push({x:e.x + Math.cos(e.dir) * e.r, y:e.y + Math.sin(e.dir) * e.r, vx:(Math.random() - 0.5) * 180, vy:(Math.random() - 0.5) * 180, life:0.3, t:0, c:"#ffd28a", s:1.5, glow:true});
+    if (Math.hypot(G.player.x - d.cx, G.player.y - d.cy) < 400) G.shake = Math.max(G.shake, 2.5);
+    if (G.time - d.warned > 20){ d.warned = G.time; toast(`Something is hitting the ${d.name.toLowerCase()} blast door.`, "#c9a54a", 3); }
+    if (d.hp <= 0){
+      Object.assign(d, {hp:0, broken:true, open:true, o:1}); G.shake = Math.max(G.shake, 6);
+      for (let i = 0; i < 24; i++) G.particles.push({x:d.cx + (Math.random() - 0.5) * 20, y:d.cy + (Math.random() - 0.5) * 90, vx:(Math.random() - 0.5) * 260, vy:(Math.random() - 0.5) * 260, life:0.8, t:0, c: Math.random() < 0.5 ? "#50555a" : "#8a7424", s:3});
+      toast(`The ${d.name.toLowerCase()} blast door is down!`, "#c8322b", 4);
+    }
+  }
+  function update(dt){
+    const p = G.player;
+    G.nearDoor = null; let nd = 76;
+    for (const d of doors){
+      d.o = clamp(d.o + (d.open ? 1 : -1) * dt * 3.2, 0, 1); d.hit -= dt;
+      const so = doorSolid(d); if (so !== d.wasSolid){ d.wasSolid = so; Lights.refreshNear(d); }
+      const dd = Math.hypot(p.x - d.cx, p.y - d.cy); if (dd < nd){ nd = dd; G.nearDoor = d; }
+    }
+  }
+  return {interact, hit, repair, update, needsRepair, repairProblem};
+})();
+
+const Combat = (() => {
+  function startReload(){
+    const p = G.player;
+    if (G.hands){ toast("Carrie's hands are full. Stop eating or drinking first.", "#c9a54a", 2); return; }
+    if (p.reload > 0 || p.mag >= 60) return;
+    if (Inv.find("belt", "mag") < 0){
+      toast(Inv.count("bag", "mag") ? "No magazines on the belt. Move one from the bag to the belt." : "No magazines on the utility belt. Find some.", "#c8322b", 3);
+      return;
+    }
+    p.reload = 1.8;
+  }
+  function finishReload(){
+    const p = G.player, i = Inv.find("belt", "mag");
+    if (i < 0){ toast("Reload failed: no magazine left on the belt.", "#c8322b"); return; }
+    Inv.take("belt", i); p.mag = 60;
+    const n = Inv.count("belt", "mag");
+    toast("Reloaded. " + n + " magazine" + (n === 1 ? "" : "s") + " left on the belt.", "#80868a", 1.6);
+  }
+  function fire(){
+    const p = G.player, a = p.a + (Math.random() - 0.5) * 0.07;
+    const ox = p.x + Math.cos(p.a) * 4 + Math.cos(p.a + Math.PI / 2) * 3;
+    const oy = p.y + Math.sin(p.a) * 4 + Math.sin(p.a + Math.PI / 2) * 3;
+    G.bullets.push({x:ox, y:oy, px:ox, py:oy, vx:Math.cos(a) * 1500, vy:Math.sin(a) * 1500, life:0.55});
+    p.mag--; p.fireCd = 1 / 11; G.muzzle = 0.06; G.lastShot = G.time; G.shake = Math.max(G.shake, 1.6);
+    if (p.mag === 0) startReload();
+  }
+  function kill(e){
+    G.kills++;
+    const n = e.type === "stalker" ? 26 : 10;
+    for (let i = 0; i < n; i++){
+      const a = Math.random() * 6.28, s = 30 + Math.random() * 140;
+      G.particles.push({x:e.x, y:e.y, vx:Math.cos(a) * s, vy:Math.sin(a) * s, life:0.6 + Math.random() * 0.8, t:0, c: Math.random() < 0.4 ? "#000" : "#6a6e71", s:2 + Math.random() * 3});
+    }
+  }
+  function update(dt, firing){
+    const p = G.player;
+    p.fireCd -= dt;
+    if (p.reload > 0){
+      p.reload -= dt;
+      if (p.reload <= 0){ p.reload = 0; finishReload(); }
+    } else if (firing && p.fireCd <= 0){
+      if (p.mag > 0) fire();
+      else if (Inv.find("belt", "mag") < 0 && p.fireCd <= -0.5){ toast("Click. Empty.", "#c8322b", 1.2); p.fireCd = 0.6; }
+    }
+    for (let i = G.bullets.length - 1; i >= 0; i--){
+      const b = G.bullets[i]; b.px = b.x; b.py = b.y; b.life -= dt;
+      let dead = b.life <= 0;
+      for (let s = 0; s < 4 && !dead; s++){
+        b.x += b.vx * dt / 4; b.y += b.vy * dt / 4;
+        if (opaque(Math.floor(b.x / T), Math.floor(b.y / T))){
+          dead = true;
+          for (let k = 0; k < 3; k++) G.particles.push({x:b.x, y:b.y, vx:(Math.random() - 0.5) * 160, vy:(Math.random() - 0.5) * 160, life:0.25, t:0, c:"#ffd28a", s:1.5, glow:true});
+          break;
+        }
+        for (const e of G.entities){
+          if ((b.x - e.x) ** 2 + (b.y - e.y) ** 2 < (e.r + 2) ** 2){
+            e.hp--; e.flash = 0.08; e.chase = true; dead = true;
+            e.x += b.vx * 0.0015; e.y += b.vy * 0.0015;
+            break;
+          }
+        }
+      }
+      if (dead) G.bullets.splice(i, 1);
+    }
+    for (let i = G.entities.length - 1; i >= 0; i--) if (G.entities[i].hp <= 0){ kill(G.entities[i]); G.entities.splice(i, 1); }
+  }
+  return {startReload, update};
+})();
+
+const AI = (() => {
+  function update(dt){
+    const p = G.player, flow = G.flow, noisy = G.time - G.lastShot < 0.3;
+    for (const e of G.entities){
+      e.t += dt; e.flash -= dt; e.atk -= dt;
+      const dx = p.x - e.x, dy = p.y - e.y, dist = Math.hypot(dx, dy);
+      const etx = Math.floor(e.x / T), ety = Math.floor(e.y / T);
+      const fd = flow[ety * W + etx];
+      if (!e.chase){
+        if (fd >= 0 && (fd < 6 || (noisy && fd < 24) || (dist < 380 && hasLOS(e.x, e.y, p.x, p.y)))) e.chase = true;
+      } else if (fd < 0 || fd > 45) e.chase = false;
+      let vx = 0, vy = 0, sp = e.speed;
+      if (e.chase){
+        if (dist < 240 && hasLOS(e.x, e.y, p.x, p.y)){ vx = dx / dist; vy = dy / dist; }
+        else {
+          let best = fd, bx = 0, by = 0;
+          for (const [a, b] of [[1,0],[-1,0],[0,1],[0,-1]]){
+            const v = flow[(ety + b) * W + etx + a];
+            if (v >= 0 && v < best){ best = v; bx = a; by = b; }
+          }
+          const tx = (etx + bx + 0.5) * T, ty = (ety + by + 0.5) * T;
+          const l = Math.hypot(tx - e.x, ty - e.y) || 1; vx = (tx - e.x) / l; vy = (ty - e.y) / l;
+          const di = (bx || by) ? doorAt[(ety + by) * W + etx + bx] : -1;
+          if (di >= 0 && doorSolid(doors[di]) && l < e.r + T * 0.8 && e.atk <= 0) Doors.hit(doors[di], e);
+        }
+      } else {
+        sp *= 0.35;
+        const l = Math.hypot(e.wx - e.x, e.wy - e.y);
+        if (l < 8 || Math.random() < dt * 0.15){
+          const nx = etx + Math.floor(Math.random() * 11) - 5, ny = ety + Math.floor(Math.random() * 11) - 5;
+          if (walkable(nx, ny)){ e.wx = (nx + 0.5) * T; e.wy = (ny + 0.5) * T; }
+        } else { vx = (e.wx - e.x) / l; vy = (e.wy - e.y) / l; }
+      }
+      if (e.type === "pest"){ const w = Math.sin(e.t * 17 + e.seed * 9) * 0.5, c = Math.cos(w), s = Math.sin(w); [vx, vy] = [vx * c - vy * s, vx * s + vy * c]; }
+      if (vx || vy) e.dir = Math.atan2(vy, vx);
+      if (move(e, vx * sp * dt, vy * sp * dt) && !e.chase){ e.wx = e.x; e.wy = e.y; }
+      if (dist < e.r + p.r + 5 && e.atk <= 0){
+        e.atk = e.cd; p.hp -= e.dmg; G.hurtFlash = 0.35; G.shake = 7;
+        G.cause = e.type === "stalker" ? "Something grey reached Carrie before the light did." : "Crawlers swarmed the catwalk.";
+        move(p, dx / (dist || 1) * 10, dy / (dist || 1) * 10);
+      }
+    }
+    // entities keep apart from each other, then out of Carrie's body so they can always be shot
+    const es = G.entities;
+    for (let i = 0; i < es.length; i++) for (let j = i + 1; j < es.length; j++){
+      const a = es[i], b = es[j], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy), m = a.r + b.r;
+      if (d > 0 && d < m){ const push = (m - d) / 2, ux = dx / d, uy = dy / d; move(a, -ux * push, -uy * push); move(b, ux * push, uy * push); }
+    }
+    for (const e of es){
+      let dx = e.x - p.x, dy = e.y - p.y, d = Math.hypot(dx, dy);
+      const minD = e.r + p.r + 1;
+      if (d >= minD) continue;
+      if (d < 0.01){ dx = -Math.cos(p.a); dy = -Math.sin(p.a); d = 1; } else { dx /= d; dy /= d; }
+      move(e, dx * (minD - d), dy * (minD - d));
+      const d2 = Math.hypot(e.x - p.x, e.y - p.y);
+      if (d2 < minD) move(p, -dx * (minD - d2), -dy * (minD - d2));
+    }
+  }
+  return {update};
+})();
+
+const Pickups = (() => {
+  const RANGE = 40, FALL_PER_SEC = 0.05;
+  const spawnAt = (it, at) => G.pickups.push({type:it.type, item:it, x:at.x, y:at.y, ph:0});
+  function update(dt){
+    const p = G.player;
+    G.nearItem = null; let nd = RANGE;
+    for (const k of G.pickups){
+      k.ph += dt;
+      const d = Math.hypot(k.x - p.x, k.y - p.y);
+      if (d < nd){ nd = d; G.nearItem = k; }
+    }
+    // an open bag loses things while Carrie isn't holding it
+    if (!G.invOpen && !G.cookOpen && Inv.bag.zip > 0.001){
+      const risky = Inv.bag.slots.map((s, i) => s && Inv.atRisk(i) ? i : -1).filter(i => i >= 0);
+      if (risky.length && Math.random() < 1 - Math.pow(1 - FALL_PER_SEC, dt)){
+        const i = risky[Math.floor(Math.random() * risky.length)];
+        const it = Inv.takeOne("bag", i);
+        if (it.type === "cooked") toast("The cooked noodles spilled out of the open bag.", "#c8322b", 3);
+        else { spawnAt(it, dropSpot(p)); toast(`${nameOf(it)} fell out of the open bag.`, "#c9a54a", 3); }
+      }
+    }
+  }
+  function pickUp(){
+    const k = G.nearItem;
+    if (!k || G.state !== "play") return;
+    const at = Inv.add(k.item);
+    if (at.why){
+      if (G.time - G.lastFullMsg > 1.2){
+        G.lastFullMsg = G.time;
+        toast(at.why === "zipped" ? "The bag is zipped. Open it far enough to reach an empty slot." : (k.type === "mag" ? "Belt and bag are both full." : "Bag full. Use or discard something first."), "#c8322b", 2.4);
+      }
+      return;
+    }
+    G.pickups.splice(G.pickups.indexOf(k), 1); G.nearItem = null;
+    toast(`Picked up ${nameOf(k.item)}. It went ${at.c === "belt" ? "onto the utility belt" : at.merge ? "onto a stack in the bag" : "into the bag"}.`, ITEMS[k.type].color);
+  }
+  function drop(c, i){
+    const it = Inv.take(c, i); if (!it) return;
+    dropItem(it);
+    toast(`Dropped ${nameOf(it)}.`, "#80868a");
+  }
+  function dropItem(it){ spawnAt(it, dropSpot(G.player)); }
+  return {RANGE, update, pickUp, drop, dropItem};
+})();
+
+const Needs = (() => {
+  function update(dt){
+    const p = G.player;
+    p.hunger = Math.max(0, p.hunger - dt * 100 / 380);
+    p.thirst = Math.max(0, p.thirst - dt * 100 / 260);
+    if (p.hunger <= 0){ p.hp -= dt * 1.4; G.cause = "Starved in the dark."; }
+    if (p.thirst <= 0){ p.hp -= dt * 1.8; G.cause = "Dehydrated before help came."; }
+    p.resting = false;
+    if (inBase(p.x, p.y) && p.hunger > 20 && p.thirst > 20 && p.hp < 100){
+      const threat = G.entities.some(e => e.chase && Math.hypot(e.x - p.x, e.y - p.y) < 380);
+      if (!threat){ p.hp = Math.min(100, p.hp + dt * 4); p.resting = true; }
+    }
+  }
+  return {update};
+})();
+
+/* Act: eating and drinking take time. The item is in Carrie's hands
+   while she does it; stopping puts it back (or on the floor). */
+const Act = (() => {
+  const SIP = 0.25, BOTTLE = 45;               // a full bottle drains in 4 s for +45 thirst
+  const RAW = {hunger:22, thirst:-6}, RAW_SEASONED = {hunger:27, thirst:-12};
+  function values(it){
+    if (it.type === "cooked") return {hunger:it.hunger, thirst:it.thirst, bites:6, biteTime:1.1};
+    return Object.assign({bites:5, biteTime:0.9}, it.seasoned ? RAW_SEASONED : RAW);
+  }
+  function hold(kind, item, from){ G.hands = {kind, item, from, t:0, biteT:0, bites:0}; Input.mouse.down = false; }
+  function startDrink(c, i){ if (G.hands) return false; hold("drink", Inv.take(c, i), {c, i}); return true; }
+  // mode: "raw" keeps the packets aside, "seasoned" sprinkles them on, "cooked"
+  function startEat(c, i, mode){
+    if (G.hands) return false;
+    const it = Inv.take(c, i);
+    if (it.type === "food" && it.packets){
+      it.packets = false;
+      if (mode === "seasoned") it.seasoned = true;
+      else {
+        const at = Inv.add({type:"packets", count:1}, {c, i});
+        if (at.why){ Pickups.dropItem({type:"packets", count:1}); toast("No room for the packets, so Carrie set them down.", "#c9a54a"); }
+      }
+    }
+    hold("eat", it, {c, i}); return true;
+  }
+  function startEatItem(it){ if (G.hands) return false; hold("eat", it, null); return true; }
+  function stop(quiet){
+    const h = G.hands; if (!h) return;
+    G.hands = null;
+    const at = Inv.add(h.item, h.from);
+    if (at.why){ Pickups.dropItem(h.item); toast(`No free slot in reach, so Carrie set the ${shortName(h.item).toLowerCase()} down.`, "#c9a54a", 3); }
+    else if (!quiet) toast(`Put the ${nameOf(h.item).toLowerCase()} away.`, "#80868a", 1.6);
+  }
+  function update(dt){
+    const h = G.hands; if (!h) return;
+    const p = G.player; h.t += dt;
+    if (h.kind === "drink"){
+      const d = Math.min(h.item.amount, SIP * dt);
+      h.item.amount -= d; p.thirst = Math.min(100, p.thirst + d * BOTTLE);
+      if (h.item.amount <= 0.002){ G.hands = null; toast("Finished the Blue Water. Carrie drops the empty bottle.", "#3fa9f5"); }
+      else if (p.thirst >= 99.9){ toast("Carrie isn't thirsty any more.", "#3fa9f5", 2); stop(true); }
+      return;
+    }
+    const v = values(h.item);
+    h.biteT += dt;
+    if (h.biteT >= v.biteTime){
+      h.biteT -= v.biteTime; h.bites++;
+      const f = Math.min(h.item.portion, 1 / v.bites);
+      h.item.portion -= f;
+      p.hunger = clamp(p.hunger + v.hunger * f, 0, 100);
+      p.thirst = clamp(p.thirst + v.thirst * f, 0, 100);
+      if (h.item.portion <= 0.002){ G.hands = null; toast(h.item.type === "cooked" ? "Finished the noodles, broth and all." : "Finished the dry noodles.", "#e0a84a"); }
+      else if (p.hunger >= 99.9){ toast("Carrie is full.", "#e0a84a", 2); stop(true); }
+    }
+  }
+  return {values, startDrink, startEat, startEatItem, stop, update};
+})();
+
+/* Dispenser: holds up to CAP bottles of water and takes BOIL seconds to boil. */
+const Dispenser = (() => {
+  const CAP = 4, BOIL = 10, CUP = 0.5, RANGE = 58;
+  const tx = 55, ty = 31, x = (tx + 0.5) * T, y = (ty + 0.5) * T;
+  const st = {water:0, heat:0};
+  function reset(){ st.water = 0; st.heat = 0; }
+  function update(dt){ if (st.water > 0.001) st.heat = Math.min(1, st.heat + dt / BOIL); else { st.water = 0; st.heat = 0; } }
+  function add(units){
+    const a = Math.min(CAP - st.water, units); if (a <= 0) return 0;
+    st.heat = st.water > 0 ? st.heat * st.water / (st.water + a) : 0;   // cold water cools the tank
+    st.water += a; return a;
+  }
+  function take(units){ const a = Math.min(st.water, units); st.water -= a; return a; }
+  const boiling = () => st.water > 0.001 && st.heat >= 1;
+  const secsLeft = () => Math.ceil((1 - st.heat) * BOIL);
+  function status(){
+    if (st.water <= 0.001) return "Empty";
+    return boiling() ? "Boiling" : `Heating, ${secsLeft()} s`;
+  }
+  // pour the fullest reachable bottle in
+  function fillFromBag(){
+    const i = Inv.findWhere("bag", s => s.type === "water");
+    if (i < 0) return Inv.find("bag", "water") >= 0 ? "Your water is zipped in the bag. Open the bag further." : "You have no water in the bag.";
+    let best = i;
+    Inv.bag.slots.forEach((s, k) => { if (s && s.type === "water" && Inv.reachable("bag", k) && s.amount > Inv.bag.slots[best].amount) best = k; });
+    const b = Inv.bag.slots[best], added = add(b.amount);
+    if (added <= 0) return "The dispenser is already full.";
+    b.amount -= added;
+    if (b.amount <= 0.002) Inv.take("bag", best); else Inv.bump();
+    toast(`Poured ${Math.round(added * 100)}% of a bottle into the dispenser.`, "#3fa9f5", 2);
+    return null;
+  }
+  function fillFrom(c, i){
+    const b = Inv.get(c, i); if (!b || b.type !== "water") return null;
+    const added = add(b.amount);
+    if (added <= 0) return "The dispenser is already full.";
+    b.amount -= added;
+    if (b.amount <= 0.002) Inv.take(c, i); else Inv.bump();
+    toast(`Poured ${Math.round(added * 100)}% of a bottle into the dispenser.`, "#3fa9f5", 2);
+    return null;
+  }
+  return {CAP, BOIL, CUP, RANGE, x, y, st, reset, update, add, take, boiling, secsLeft, status, fillFromBag, fillFrom};
+})();
+
+/* Use: F / the context button works on whichever is closest, a door or the dispenser. */
+const Use = (() => {
+  function update(){
+    const p = G.player, dd = Math.hypot(p.x - Dispenser.x, p.y - Dispenser.y);
+    G.nearDisp = false;
+    if (dd < Dispenser.RANGE && (!G.nearDoor || dd < Math.hypot(p.x - G.nearDoor.cx, p.y - G.nearDoor.cy))){ G.nearDisp = true; G.nearDoor = null; }
+    if (G.cookOpen && dd > Dispenser.RANGE + 50) CookUI.close();
+  }
+  function interact(){ if (G.state !== "play") return; if (G.nearDisp) CookUI.toggle(); else Doors.interact(); }
+  return {update, interact};
+})();
+
+/* ---------- 9. Input ---------- */
+const cv = $("game"), ctx = cv.getContext("2d");
+const lc = document.createElement("canvas"), lx = lc.getContext("2d");
+let dpr = 1, vw = 0, vh = 0, S = 1.6;
+let touchMode = !!(window.matchMedia && matchMedia("(pointer: coarse)").matches);
+function resize(){
+  dpr = Math.min(window.devicePixelRatio || 1, touchMode ? 1.5 : 2);
+  vw = innerWidth; vh = innerHeight;
+  cv.width = lc.width = Math.round(vw * dpr);
+  cv.height = lc.height = Math.round(vh * dpr);
+  cv.style.width = vw + "px"; cv.style.height = vh + "px";
+  S = Math.max(touchMode ? 0.75 : 0.9, Math.min(2.2, Math.min(vw / (T * 26), vh / (T * 15))));
+}
+addEventListener("resize", resize);
+
+const Input = (() => {
+  const keys = {}, mouse = {x:0, y:0, down:false}, sticks = {move:null, aim:null}, R = 56;
+  function setTouch(on){ touchMode = on; document.body.classList.toggle("touch", on); resize(); }
+  function stickVec(s){
+    let dx = s.x - s.ox, dy = s.y - s.oy, l = Math.hypot(dx, dy);
+    if (l > R){ s.ox = s.x - dx / l * R; s.oy = s.y - dy / l * R; dx = s.x - s.ox; dy = s.y - s.oy; l = R; }
+    return {x: dx / R, y: dy / R, m: l / R};
+  }
+  function clear(){ mouse.down = false; sticks.move = sticks.aim = null; for (const k in keys) keys[k] = false; }
+  addEventListener("keydown", e => {
+    const k = e.key.toLowerCase();
+    if (e.target && e.target.id === "zipPull" && (k === "arrowleft" || k === "arrowright")) return; // zipper has its own keys
+    keys[k] = true;
+    if (G.state === "play"){
+      if (k === "r") Combat.startReload();
+      if (k === "m") G.showMap = !G.showMap;
+      if (k === "e") Pickups.pickUp();
+      if (k === "f") Use.interact();
+      if (k === "q") Act.stop();
+      if (k === "i" || k === "tab"){ e.preventDefault(); InvUI.toggle(); }
+      else if (k === "escape" && G.cookOpen) CookUI.close();
+      else if (k === "escape" && G.invOpen) InvUI.close();
+      else if (k === "p" || k === "escape") Screens.pause(true);
+    } else if (G.state === "pause" && (k === "p" || k === "escape")) Screens.pause(false);
+    if (["arrowup","arrowdown","arrowleft","arrowright"," "].includes(k)) e.preventDefault();
+  });
+  addEventListener("keyup", e => { keys[e.key.toLowerCase()] = false; });
+  cv.addEventListener("pointerdown", e => {
+    if (e.pointerType === "mouse"){
+      if (touchMode) setTouch(false);
+      mouse.x = e.clientX; mouse.y = e.clientY;
+      if (e.button === 0) mouse.down = true;
+      return;
+    }
+    e.preventDefault();
+    if (!touchMode) setTouch(true);
+    const st = {id:e.pointerId, ox:e.clientX, oy:e.clientY, x:e.clientX, y:e.clientY};
+    if (e.clientX < vw / 2){ if (!sticks.move) sticks.move = st; }
+    else if (!sticks.aim) sticks.aim = st;
+    try { cv.setPointerCapture(e.pointerId); } catch (_) {}
+  });
+  cv.addEventListener("pointermove", e => {
+    if (e.pointerType === "mouse"){ mouse.x = e.clientX; mouse.y = e.clientY; return; }
+    for (const k of ["move", "aim"]){ const s = sticks[k]; if (s && s.id === e.pointerId){ s.x = e.clientX; s.y = e.clientY; } }
+  });
+  function endPointer(e){
+    if (e.pointerType === "mouse"){ if (e.button === 0) mouse.down = false; return; }
+    for (const k of ["move", "aim"]) if (sticks[k] && sticks[k].id === e.pointerId) sticks[k] = null;
+  }
+  addEventListener("pointerup", endPointer);
+  addEventListener("pointercancel", endPointer);
+  cv.addEventListener("contextmenu", e => e.preventDefault());
+  addEventListener("blur", () => { clear(); if (G.state === "play") Screens.pause(true); });
+
+  // turns raw input into this frame's intent
+  function read(){
+    const p = G.player;
+    let firing = false, mx = 0, my = 0;
+    if (touchMode){
+      const mv = sticks.move ? stickVec(sticks.move) : {x:0, y:0, m:0};
+      if (mv.m > 0.12){ mx = mv.x; my = mv.y; }
+      if (sticks.aim){
+        const av = stickVec(sticks.aim);
+        if (av.m > 0.15){ p.a = Math.atan2(av.y, av.x); firing = true; }
+      } else if (mv.m > 0.3) p.a = Math.atan2(mv.y, mv.x);
+    } else {
+      const wmx = G.cam.x + mouse.x / S, wmy = G.cam.y + mouse.y / S;
+      p.a = Math.atan2(wmy - p.y, wmx - p.x);
+      firing = mouse.down;
+      mx = (keys.d || keys.arrowright ? 1 : 0) - (keys.a || keys.arrowleft ? 1 : 0);
+      my = (keys.s || keys.arrowdown ? 1 : 0) - (keys.w || keys.arrowup ? 1 : 0);
+    }
+    const ml = Math.hypot(mx, my);
+    if (ml > 1){ mx /= ml; my /= ml; }
+    return {mx, my, firing};
+  }
+  return {keys, mouse, sticks, R, setTouch, stickVec, clear, read};
+})();
+
+/* ---------- 10. Draw ---------- */
+const mapCv = document.createElement("canvas");
+mapCv.width = W * T; mapCv.height = H * T;
+const Draw = (() => {
+  function buildMap(){
+    const m = mapCv.getContext("2d"), rnd = mulberry32(3006);
+    m.fillStyle = "#000"; m.fillRect(0, 0, W * T, H * T);
+    for (let j = 0; j < H; j++) for (let i = 0; i < W; i++){
+      const t = map[j * W + i], px = i * T, py = j * T;
+      if (t === WALL){
+        let near = false;
+        for (let b = -1; b <= 1; b++) for (let a = -1; a <= 1; a++) if (tileAt(i + a, j + b) !== WALL) near = true;
+        if (!near){ m.fillStyle = "#0d0f10"; m.fillRect(px, py, T, T); continue; }
+        m.fillStyle = "#34383c"; m.fillRect(px, py, T, T);
+        m.fillStyle = "#42474c"; m.fillRect(px + 3, py + 3, T - 6, T - 6);
+        m.strokeStyle = "#2a2d31"; m.lineWidth = 1; m.strokeRect(px + 3.5, py + 3.5, T - 7, T - 7);
+        if (rnd() < 0.15){ m.fillStyle = "#2d3034"; m.fillRect(px + 8, py + 12, T - 16, 3); }
+        continue;
+      }
+      if (t === VOID){ m.fillStyle = "#000"; m.fillRect(px, py, T, T); continue; }
+      if (t === GRATE){
+        m.fillStyle = "#020303"; m.fillRect(px, py, T, T);
+        m.strokeStyle = "#373c41"; m.lineWidth = 1.5; m.beginPath();
+        for (let k = 4; k < T; k += 7){ m.moveTo(px + k, py); m.lineTo(px + k, py + T); m.moveTo(px, py + k); m.lineTo(px + T, py + k); }
+        m.stroke();
+      } else if (t === SEALED){
+        m.fillStyle = "#1f1d18"; m.fillRect(px, py, T, T);
+        m.save(); m.beginPath(); m.rect(px, py, T, T); m.clip();
+        m.strokeStyle = "#5e4f1c"; m.lineWidth = 5;
+        for (let k = -T; k < T * 2; k += 12){ m.beginPath(); m.moveTo(px + k, py); m.lineTo(px + k + T, py + T); m.stroke(); }
+        m.restore();
+      } else {
+        m.fillStyle = "#26292c"; m.fillRect(px, py, T, T);
+        m.strokeStyle = "#1e2023"; m.lineWidth = 1; m.strokeRect(px + 0.5, py + 0.5, T - 1, T - 1);
+        if (rnd() < 0.05){ m.fillStyle = "rgba(0,0,0,0.2)"; m.beginPath(); m.ellipse(px + rnd() * T, py + rnd() * T, 5 + rnd() * 9, 3 + rnd() * 6, rnd() * 3, 0, 7); m.fill(); }
+        if (rnd() < 0.3){ m.fillStyle = "#34383b"; m.fillRect(px + 3, py + 3, 2, 2); m.fillRect(px + T - 5, py + T - 5, 2, 2); }
+        if (tileAt(i, j - 1) === WALL){ m.fillStyle = "rgba(0,0,0,0.4)"; m.fillRect(px, py, T, 7); }
+        if (t === CRATE){
+          m.fillStyle = "#3f3a2f"; m.fillRect(px + 2, py + 2, T - 4, T - 4);
+          m.strokeStyle = "#2d2921"; m.lineWidth = 2; m.strokeRect(px + 3, py + 3, T - 6, T - 6);
+          m.beginPath(); m.moveTo(px + 4, py + 4); m.lineTo(px + T - 4, py + T - 4); m.moveTo(px + T - 4, py + 4); m.lineTo(px + 4, py + T - 4); m.stroke();
+        } else if (t === TABLE){
+          m.fillStyle = "#3a3f44"; m.fillRect(px + 1, py + 4, T - 2, T - 8);
+          m.fillStyle = "#4a5056"; m.fillRect(px + 1, py + 4, T - 2, 3);
+        }
+      }
+      if (t === FLOOR || t === GRATE){
+        m.strokeStyle = "#5a6066"; m.lineWidth = 3; m.beginPath();
+        if (tileAt(i, j - 1) === VOID){ m.moveTo(px, py + 1.5); m.lineTo(px + T, py + 1.5); }
+        if (tileAt(i, j + 1) === VOID){ m.moveTo(px, py + T - 1.5); m.lineTo(px + T, py + T - 1.5); }
+        if (tileAt(i - 1, j) === VOID){ m.moveTo(px + 1.5, py); m.lineTo(px + 1.5, py + T); }
+        if (tileAt(i + 1, j) === VOID){ m.moveTo(px + T - 1.5, py); m.lineTo(px + T - 1.5, py + T); }
+        m.stroke();
+      }
+    }
+    const mx = 44.4 * T, my = 36.2 * T;
+    m.fillStyle = "#6f6a5e"; m.fillRect(mx, my, T * 2.2, T * 1.4);
+    m.fillStyle = "#5c574c"; m.fillRect(mx + 4, my + 4, T * 0.6, T * 1.4 - 8);
+    m.fillStyle = "rgba(60,45,30,0.5)"; m.beginPath(); m.ellipse(mx + T * 1.4, my + T * 0.8, 10, 6, 0.4, 0, 7); m.fill();
+    [[47.2,37.3],[47.6,37.7],[46.9,37.9]].forEach(([x,y]) => { m.fillStyle = "#b9b2a0"; m.beginPath(); m.arc(x * T, y * T, 5, 0, 7); m.fill(); m.fillStyle = "#8a3a2a"; m.beginPath(); m.arc(x * T, y * T, 2.5, 0, 7); m.fill(); });
+    m.textAlign = "center"; m.textBaseline = "middle";
+    rooms.forEach(r => {
+      if (r.label === false) return;
+      m.font = `700 ${r.name.length > 14 ? 24 : 30}px ${FONT}`;
+      m.fillStyle = "rgba(200,205,200,0.09)";
+      const cx = (r.x + r.w / 2) * T, cy = (r.y + r.h / 2) * T + (r.name === "Command Room" ? -8 : 0);
+      const txt = r.name.toUpperCase(), tw = m.measureText(txt).width;
+      m.save(); m.translate(cx, cy); if (tw > r.w * T - 16) m.rotate(-Math.PI / 2); m.fillText(txt, 0, 0); m.restore();
+    });
+    m.font = `600 13px ${FONT}`; m.textAlign = "right"; m.fillStyle = "rgba(220,90,80,0.55)";
+    m.fillText("Common server access: sealed", 93.6 * T, 32.4 * T);
+    m.fillStyle = "rgba(200,205,200,0.18)"; m.textAlign = "center";
+    m.fillText("Void Hall", 13.5 * T, 30.5 * T);
+    m.fillText("Void Shaft", 85 * T, 27 * T);
+  }
+
+  const worldT = c => c.setTransform(dpr * S, 0, 0, dpr * S, -G.cam.x * dpr * S, -G.cam.y * dpr * S);
+  const screenT = c => c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  function fillPoly(c, pts){ c.beginPath(); c.moveTo(pts[0], pts[1]); for (let i = 2; i < pts.length; i += 2) c.lineTo(pts[i], pts[i + 1]); c.closePath(); c.fill(); }
+  const inView = (x, y, pad) => x > G.cam.x - pad && y > G.cam.y - pad && x < G.cam.x + vw / S + pad && y < G.cam.y + vh / S + pad;
+  const toScreen = (x, y) => [(x - G.cam.x) * S, (y - G.cam.y) * S];
+
+  function entity(e){
+    ctx.save(); ctx.translate(e.x, e.y);
+    const sg = ctx.createRadialGradient(0, 0, e.r * 0.4, 0, 0, e.r * 2.4);
+    sg.addColorStop(0, "rgba(0,0,0,0.75)"); sg.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = sg; ctx.beginPath();
+    for (let i = 0; i <= 12; i++){ const a = i / 12 * 6.283, rr = e.r * (1.9 + 0.5 * Math.sin(e.t * 3 + i * 1.7 + e.seed * 9)); ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+    ctx.fill();
+    ctx.rotate(e.dir);
+    const grey = e.flash > 0 ? "#b8bcbf" : "#5f6366";
+    if (e.type === "stalker"){
+      const sw = Math.sin(e.t * 7) * 0.35;
+      ctx.strokeStyle = grey; ctx.lineCap = "round"; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(0, -8); ctx.lineTo(17, -15 + sw * 8); ctx.lineTo(30, -11 + sw * 10);
+      ctx.moveTo(0, 8); ctx.lineTo(17, 15 - sw * 8); ctx.lineTo(30, 11 - sw * 10); ctx.stroke();
+      ctx.fillStyle = grey; ctx.beginPath(); ctx.ellipse(-3, 0, 12, 7, 0, 0, 7); ctx.fill();
+      ctx.fillStyle = e.flash > 0 ? "#e2e2dc" : "#8d8f8a"; ctx.beginPath(); ctx.ellipse(10, 0, 7, 8, 0, 0, 7); ctx.fill();
+      ctx.fillStyle = "#111"; ctx.beginPath(); ctx.arc(13, -3.5, 1.6, 0, 7); ctx.arc(12.4, 3.2, 1.1, 0, 7); ctx.fill();
+      ctx.strokeStyle = "#1a1a1a"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(15.5, -5); ctx.quadraticCurveTo(17.5, 0.5, 15, 6); ctx.stroke();
+    } else {
+      ctx.strokeStyle = grey; ctx.lineWidth = 1.6;
+      for (let i = 0; i < 6; i++){
+        const side = i < 3 ? -1 : 1, k = i % 3, w = Math.sin(e.t * 22 + i * 2) * 3;
+        ctx.beginPath(); ctx.moveTo(-3 + k * 4, 0); ctx.lineTo(-5 + k * 5 + w, side * 11); ctx.stroke();
+      }
+      ctx.fillStyle = grey; ctx.beginPath(); ctx.ellipse(0, 0, 8, 5.5, 0, 0, 7); ctx.fill();
+      ctx.fillStyle = e.flash > 0 ? "#e2e2dc" : "#85877f"; ctx.beginPath(); ctx.arc(6, 0, 3, 0, 7); ctx.fill();
+    }
+    ctx.restore();
+  }
+  function voidPatch(e){
+    ctx.save(); ctx.translate(e.x, e.y); ctx.rotate(e.dir + e.vp * 0.2);
+    ctx.fillStyle = "#000"; ctx.beginPath();
+    if (e.type === "stalker"){ ctx.moveTo(-12, -4); ctx.lineTo(-2, -6); ctx.lineTo(1, 1); ctx.lineTo(-6, 6); ctx.lineTo(-13, 3); }
+    else ctx.arc(-2, 0, 3, 0, 7);
+    ctx.fill(); ctx.restore();
+  }
+  function player(){
+    const p = G.player;
+    ctx.save(); ctx.translate(p.x, p.y);
+    ctx.fillStyle = "rgba(0,0,0,0.45)"; ctx.beginPath(); ctx.ellipse(2, 3, 14, 12, 0, 0, 7); ctx.fill();
+    ctx.rotate(p.a);
+    ctx.fillStyle = "#1c1f22"; ctx.fillRect(4, 1, 24, 5); ctx.fillStyle = "#2c3034"; ctx.fillRect(10, 0, 10, 7);
+    ctx.fillStyle = "#6a6f73"; ctx.beginPath(); ctx.ellipse(0, 0, 9, 13, 0, 0, 7); ctx.fill();
+    ctx.strokeStyle = "#e6e8e2"; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.moveTo(-5, -11); ctx.lineTo(-5, 11); ctx.moveTo(-1.5, -12.5); ctx.lineTo(-1.5, 12.5); ctx.stroke();
+    ctx.fillStyle = "#23272a"; ctx.fillRect(-4, -15, 6, 4);
+    ctx.fillStyle = "#30353a"; ctx.fillRect(1, 9, 7, 5);
+    ctx.fillStyle = "#fff6d8"; ctx.fillRect(7, 10, 2, 3);
+    // bag on her back: brass edge shows when it's open
+    ctx.fillStyle = "#2a2c2f"; ctx.fillRect(-14, -7, 6, 14);
+    if (Inv.bag.zip > 0.001){ ctx.fillStyle = "#c9a54a"; ctx.fillRect(-14, -7, 2, 14 * Inv.bag.zip); }
+    ctx.fillStyle = "#4c5054"; ctx.beginPath(); ctx.arc(-1, 0, 6.5, 0, 7); ctx.fill();
+    ctx.fillStyle = "#3f4347"; ctx.fillRect(3, -4.5, 4, 9);
+    if (G.hands){
+      if (G.hands.kind === "drink"){ ctx.fillStyle = "#1c6fb0"; ctx.fillRect(8, -9, 5, 9); ctx.fillStyle = "#e8eef2"; ctx.fillRect(8, -6, 5, 2); }
+      else { ctx.fillStyle = "#d8d0b8"; ctx.beginPath(); ctx.arc(10, -6, 4.5, 0, 7); ctx.fill(); ctx.fillStyle = G.hands.item.type === "cooked" ? "#a8602a" : "#e3c56d"; ctx.beginPath(); ctx.arc(10, -6, 3, 0, 7); ctx.fill(); }
+    }
+    ctx.restore();
+  }
+  function pickup(k){
+    ctx.save(); ctx.translate(k.x, k.y);
+    if (k.type === "food" || k.type === "cooked"){
+      const it = k.item;
+      ctx.fillStyle = "#c9c1ab"; ctx.beginPath(); ctx.arc(0, 0, 7, 0, 7); ctx.fill();
+      ctx.fillStyle = k.type === "cooked" ? "#a8602a" : it.state === "sealed" ? "#b7bcc2" : "#e3c56d"; ctx.beginPath(); ctx.arc(0, 0, 5.2, 0, 7); ctx.fill();
+      if (k.type === "food" && it.state === "sealed"){ ctx.fillStyle = "#9c3b28"; ctx.beginPath(); ctx.arc(0, 0, 2.4, 0, 7); ctx.fill(); }
+    } else if (k.type === "packets"){
+      ctx.rotate(0.3); ctx.fillStyle = "#b3372a"; ctx.fillRect(-7, -5, 7, 10); ctx.fillStyle = "#4f8a3a"; ctx.fillRect(0, -4, 7, 10);
+    } else if (k.type === "water"){
+      ctx.rotate(0.5); ctx.fillStyle = "#1c6fb0"; ctx.fillRect(-4, -9, 8, 16); ctx.fillStyle = "#e8eef2"; ctx.fillRect(-2, -12, 4, 3); ctx.fillRect(-4, -2, 8, 3);
+    } else if (k.type === "alloy"){
+      ctx.rotate(0.3); ctx.fillStyle = "#8e969c"; ctx.fillRect(-9, -6, 18, 12); ctx.fillStyle = "#b3bac0"; ctx.fillRect(-9, -6, 18, 3);
+    } else if (k.type === "kit"){
+      ctx.rotate(-0.2); ctx.fillStyle = "#b85c26"; ctx.fillRect(-8, -6, 16, 12);
+      ctx.fillStyle = "#f1e6d0"; ctx.fillRect(-1, -4, 2, 8); ctx.fillRect(-4, -1, 8, 2);
+    } else {
+      ctx.rotate(-0.4); ctx.fillStyle = "#2e3236"; ctx.fillRect(-5, -9, 10, 18); ctx.fillStyle = "#c9a54a"; ctx.fillRect(-3, -11, 6, 3);
+    }
+    ctx.restore();
+  }
+  function door(d){
+    const L = T * 3, half = L / 2;
+    ctx.save(); ctx.translate(d.cx, d.cy);
+    if (!d.vertical) ctx.rotate(Math.PI / 2);
+    if (d.hit > 0) ctx.translate((Math.random() - 0.5) * 3, 0);
+    ctx.fillStyle = "#16181a"; ctx.fillRect(-11, -half, 22, L);
+    ctx.fillStyle = "#2c3034"; ctx.fillRect(-13, -half - 10, 26, 10); ctx.fillRect(-13, half, 26, 10);
+    if (d.broken){
+      ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.beginPath(); ctx.ellipse(0, 0, 18, 40, 0, 0, 7); ctx.fill();
+      ctx.fillStyle = "#454a4f"; ctx.strokeStyle = "#6b5a1e"; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(-6, -half); ctx.lineTo(6, -half); ctx.lineTo(9, -22); ctx.lineTo(1, -12); ctx.lineTo(4, -26); ctx.lineTo(-7, -18); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-6, half); ctx.lineTo(6, half); ctx.lineTo(8, 20); ctx.lineTo(-2, 28); ctx.lineTo(-10, 14); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#3a3e42"; ctx.fillRect(12, -6, 7, 4); ctx.fillRect(-18, 8, 5, 6); ctx.fillRect(10, 22, 4, 4);
+    } else {
+      const len = half * (1 - d.o);
+      if (len > 0.5){
+        const dmg = 1 - d.hp / DOOR_HP;
+        for (const sgn of [-1, 1]){
+          const y0 = sgn < 0 ? -half : half - len;
+          ctx.fillStyle = "#565c62"; ctx.fillRect(-10, y0, 20, len);
+          ctx.fillStyle = "#3b3f43"; ctx.fillRect(-10, y0, 4, len); ctx.fillRect(6, y0, 4, len);
+          ctx.fillStyle = "#6a7178"; for (let k = y0 + 8; k < y0 + len - 8; k += 14) ctx.fillRect(-4, k, 8, 2);
+          const ey = sgn < 0 ? y0 + len - 7 : y0;
+          ctx.fillStyle = "#8a7424"; ctx.fillRect(-10, ey, 20, 7);
+          ctx.fillStyle = "#1c1a15"; for (let k = -10; k < 10; k += 5) ctx.fillRect(k, ey, 2.5, 7);
+          if (dmg > 0.3){ ctx.strokeStyle = "rgba(0,0,0,0.7)"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(-4, y0 + len * 0.3); ctx.lineTo(3, y0 + len * 0.45); ctx.lineTo(-2, y0 + len * 0.6); if (dmg > 0.6){ ctx.moveTo(4, y0 + len * 0.7); ctx.lineTo(-3, y0 + len * 0.85); } ctx.stroke(); }
+        }
+      }
+    }
+    ctx.restore();
+  }
+
+  function dispenser(){
+    const x = Dispenser.x, y = Dispenser.y, st = Dispenser.st;
+    ctx.fillStyle = "rgba(0,0,0,0.4)"; ctx.fillRect(x - 12, y - 10, 26, 26);
+    ctx.fillStyle = "#c3c8cc"; ctx.fillRect(x - 13, y - 13, 26, 26);
+    ctx.fillStyle = "#9fa5aa"; ctx.fillRect(x - 13, y + 7, 26, 6);
+    // water jug seen from above, its level shown as a ring of blue
+    ctx.fillStyle = "#6f8795"; ctx.beginPath(); ctx.arc(x, y - 2, 9, 0, 7); ctx.fill();
+    ctx.fillStyle = "#1f6fb0"; ctx.beginPath(); ctx.arc(x, y - 2, 9 * Math.sqrt(st.water / Dispenser.CAP), 0, 7); ctx.fill();
+    ctx.strokeStyle = "#e6eaed"; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y - 2, 9, 0, 7); ctx.stroke();
+    ctx.fillStyle = "#8a2a22"; ctx.fillRect(x - 7, y + 8, 4, 4); ctx.fillStyle = "#2a5a8a"; ctx.fillRect(x + 3, y + 8, 4, 4);
+  }
+  function frame(){
+    const p = G.player;
+    screenT(ctx); ctx.fillStyle = "#000"; ctx.fillRect(0, 0, vw, vh);
+    worldT(ctx);
+    const sx = Math.max(0, Math.floor(G.cam.x)), sy = Math.max(0, Math.floor(G.cam.y));
+    const sw = Math.min(W * T - sx, Math.ceil(vw / S) + 2), sh = Math.min(H * T - sy, Math.ceil(vh / S) + 2);
+    if (sw > 0 && sh > 0) ctx.drawImage(mapCv, sx, sy, sw, sh, sx, sy, sw, sh);
+    for (const d of doors) if (inView(d.cx, d.cy, 80)) door(d);
+    if (inView(Dispenser.x, Dispenser.y, 40)) dispenser();
+    for (const k of G.pickups) if (inView(k.x, k.y, 20)) pickup(k);
+    for (const q of G.particles) if (!q.glow){ ctx.globalAlpha = 1 - q.t / q.life; ctx.fillStyle = q.c; ctx.fillRect(q.x - q.s / 2, q.y - q.s / 2, q.s, q.s); }
+    ctx.globalAlpha = 1;
+    for (const e of G.entities) if (inView(e.x, e.y, 60)) entity(e);
+    player();
+
+    // lighting mask
+    screenT(lx); lx.globalCompositeOperation = "source-over";
+    lx.clearRect(0, 0, vw, vh); lx.fillStyle = "rgba(2,3,4,0.86)"; lx.fillRect(0, 0, vw, vh);
+    worldT(lx); lx.globalCompositeOperation = "destination-out";
+    for (const L of Lights.lamps){
+      if (L.on <= 0.02 || !inView(L.x, L.y, L.r)) continue;
+      const g = lx.createRadialGradient(L.x, L.y, 0, L.x, L.y, L.r);
+      g.addColorStop(0, `rgba(0,0,0,${0.85 * L.on})`); g.addColorStop(0.35, `rgba(0,0,0,${0.5 * L.on})`); g.addColorStop(1, "rgba(0,0,0,0)");
+      lx.fillStyle = g; fillPoly(lx, L.poly);
+    }
+    const fa = p.a, fox = p.x + Math.cos(fa + Math.PI / 2) * 9 + Math.cos(fa) * 4, foy = p.y + Math.sin(fa + Math.PI / 2) * 9 + Math.sin(fa) * 4;
+    const cone = visPoly(fox, foy, fa - 0.42, fa + 0.42, 70, 470, 4);
+    const fg = lx.createRadialGradient(fox, foy, 0, fox, foy, 470);
+    fg.addColorStop(0, "rgba(0,0,0,1)"); fg.addColorStop(0.55, "rgba(0,0,0,0.85)"); fg.addColorStop(1, "rgba(0,0,0,0)");
+    lx.fillStyle = fg; lx.beginPath(); lx.moveTo(fox, foy);
+    for (let i = 0; i < cone.length; i += 2) lx.lineTo(cone[i], cone[i + 1]);
+    lx.closePath(); lx.fill();
+    const pg = lx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 75);
+    pg.addColorStop(0, "rgba(0,0,0,0.5)"); pg.addColorStop(1, "rgba(0,0,0,0)");
+    lx.fillStyle = pg; lx.beginPath(); lx.arc(p.x, p.y, 75, 0, 7); lx.fill();
+    if (G.muzzle > 0){
+      const mp = visPoly(p.x, p.y, 0, 6.283, 60, 200, 4);
+      const mg = lx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 200);
+      mg.addColorStop(0, `rgba(0,0,0,${G.muzzle * 11})`); mg.addColorStop(1, "rgba(0,0,0,0)");
+      lx.fillStyle = mg; fillPoly(lx, mp);
+    }
+    screenT(ctx); ctx.drawImage(lc, 0, 0, vw, vh);
+
+    // after lighting
+    worldT(ctx);
+    ctx.globalCompositeOperation = "lighter";
+    for (const L of Lights.lamps){
+      if (L.on <= 0.02 || !inView(L.x, L.y, L.r)) continue;
+      const [r, g, b] = L.col, gg = ctx.createRadialGradient(L.x, L.y, 0, L.x, L.y, L.r);
+      gg.addColorStop(0, `rgba(${r},${g},${b},${0.16 * L.on})`); gg.addColorStop(1, `rgba(${r},${g},${b},0)`);
+      ctx.fillStyle = gg; fillPoly(ctx, L.poly);
+      ctx.fillStyle = `rgba(${r},${g},${b},${0.9 * L.on})`; ctx.beginPath(); ctx.arc(L.x, L.y, 2.5, 0, 7); ctx.fill();
+    }
+    ctx.fillStyle = "rgba(255,240,200,0.05)"; ctx.beginPath(); ctx.moveTo(fox, foy);
+    for (let i = 0; i < cone.length; i += 2) ctx.lineTo(cone[i], cone[i + 1]);
+    ctx.closePath(); ctx.fill();
+    if (G.muzzle > 0){
+      const mx = p.x + Math.cos(p.a) * 30, my = p.y + Math.sin(p.a) * 30;
+      const mg = ctx.createRadialGradient(mx, my, 0, mx, my, 40);
+      mg.addColorStop(0, "rgba(255,210,140,0.9)"); mg.addColorStop(1, "rgba(255,160,60,0)");
+      ctx.fillStyle = mg; ctx.beginPath(); ctx.arc(mx, my, 40, 0, 7); ctx.fill();
+    }
+    ctx.strokeStyle = "rgba(255,220,160,0.85)"; ctx.lineWidth = 1.5; ctx.beginPath();
+    for (const b of G.bullets){ ctx.moveTo(b.px, b.py); ctx.lineTo(b.x, b.y); }
+    ctx.stroke();
+    for (const q of G.particles) if (q.glow){ ctx.fillStyle = `rgba(255,210,140,${1 - q.t / q.life})`; ctx.fillRect(q.x - 1, q.y - 1, 2, 2); }
+    for (const k of G.pickups){
+      if (!inView(k.x, k.y, 20)) continue;
+      const pulse = Math.max(0, Math.sin(k.ph * 2.1)) ** 6;
+      const c = k.type === "water" ? "63,169,245" : (k.type === "food" || k.type === "cooked") ? "224,168,74" : (k.type === "kit" || k.type === "packets") ? "217,130,59" : "220,220,210";
+      const base = k.type === "water" ? 0.12 : 0.03;
+      ctx.fillStyle = `rgba(${c},${base + pulse * 0.35})`; ctx.beginPath(); ctx.arc(k.x, k.y, 3 + pulse * 5, 0, 7); ctx.fill();
+    }
+    for (let i = 0; i < 8; i++){
+      if (Math.sin(G.time * (1.3 + i * 0.37) + i * 2) > 0.2){ ctx.fillStyle = i % 3 ? "rgba(90,220,200,0.7)" : "rgba(230,70,60,0.7)"; ctx.fillRect((51.2 + i * 0.45) * T, 30.45 * T, 3, 2); }
+    }
+    {
+      const st = Dispenser.st, col = st.water <= 0.001 ? "200,50,43" : Dispenser.boiling() ? "95,208,138" : "224,168,74";
+      const on = st.water <= 0.001 || Dispenser.boiling() || Math.sin(G.time * 6) > 0;
+      if (on){ ctx.fillStyle = `rgba(${col},0.9)`; ctx.beginPath(); ctx.arc(Dispenser.x + 9, Dispenser.y + 10, 1.8, 0, 7); ctx.fill(); ctx.fillStyle = `rgba(${col},0.18)`; ctx.beginPath(); ctx.arc(Dispenser.x + 9, Dispenser.y + 10, 7, 0, 7); ctx.fill(); }
+    }
+    ctx.globalCompositeOperation = "source-over";
+    for (const e of G.entities) if (inView(e.x, e.y, 40)) voidPatch(e);
+
+    // screen space
+    screenT(ctx);
+    if (G.hurtFlash > 0 || p.hp < 30){
+      const a = Math.max(G.hurtFlash * 1.4, p.hp < 30 ? (0.25 + 0.12 * Math.sin(G.time * 4)) : 0);
+      const vg = ctx.createRadialGradient(vw / 2, vh / 2, Math.min(vw, vh) * 0.3, vw / 2, vh / 2, Math.max(vw, vh) * 0.7);
+      vg.addColorStop(0, "rgba(120,0,0,0)"); vg.addColorStop(1, `rgba(150,10,5,${Math.min(0.7, a)})`);
+      ctx.fillStyle = vg; ctx.fillRect(0, 0, vw, vh);
+    }
+    Hud.itemLabels(); Hud.doorLabels(); Hud.main();
+    if (G.showMap && !G.invOpen) Hud.minimap();
+    if (touchMode) Hud.touch();
+    else if ((!G.invOpen || Input.mouse.x < vw - 420) && (!G.cookOpen || Input.mouse.x > 420)) Hud.crosshair();
+  }
+  return {buildMap, frame, toScreen, inView};
+})();
+
+const Hud = (() => {
+  function bar(x, y, w, label, v, col){
+    ctx.fillStyle = "rgba(10,12,14,0.8)"; ctx.fillRect(x, y, w, 8);
+    ctx.fillStyle = col; ctx.fillRect(x, y, w * Math.max(0, v) / 100, 8);
+    ctx.fillStyle = "#9aa1a5"; ctx.font = `600 12px ${FONT}`; ctx.textAlign = "left"; ctx.textBaseline = "bottom";
+    ctx.fillText(label, x, y - 3);
+    ctx.textAlign = "right"; ctx.fillText(Math.max(0, Math.ceil(v)), x + w, y - 3);
+  }
+  function label(txt, x, y, col){
+    ctx.fillStyle = "rgba(0,0,0,0.6)"; ctx.fillText(txt, x + 1, y + 1);
+    ctx.fillStyle = col; ctx.fillText(txt, x, y);
+  }
+  function itemLabels(){
+    const p = G.player;
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.font = `600 12px ${FONT}`;
+    for (const k of G.pickups){
+      if (Math.hypot(k.x - p.x, k.y - p.y) >= Pickups.RANGE) continue;
+      const [x, y0] = Draw.toScreen(k.x, k.y), y = y0 - 14 * S - 4;
+      let txt = nameOf(k.item);
+      if (k === G.nearItem){
+        if (!touchMode) txt = "[E] " + txt;
+        const at = Inv.placeFor(k.item);
+        if (at.why === "zipped") txt += " (bag zipped)";
+        else if (at.why === "full") txt += " (no room)";
+      }
+      label(txt, x, y, k === G.nearItem ? "#ffffff" : "rgba(255,255,255,0.6)");
+    }
+  }
+  function doorLabels(){
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.font = `600 12px ${FONT}`;
+    if (G.nearDisp && !G.cookOpen){
+      const [x, y] = Draw.toScreen(Dispenser.x, Dispenser.y - 22), st = Dispenser.st;
+      label(`${touchMode ? "" : "[F] "}Water dispenser: ${st.water.toFixed(1)} of ${Dispenser.CAP}, ${Dispenser.status().toLowerCase()}`, x, y, "#ffffff");
+    }
+    for (const d of doors){
+      if (!Draw.inView(d.cx, d.cy, 60)) continue;
+      const [x, y0] = Draw.toScreen(d.cx, d.cy), y = y0 - (d.vertical ? 1.5 * T * S + 12 : 18 * S + 12);
+      if (!d.broken && d.hp < DOOR_HP){
+        ctx.fillStyle = "rgba(0,0,0,0.7)"; ctx.fillRect(x - 24, y + 2, 48, 5);
+        ctx.fillStyle = d.hp < DOOR_HP * 0.35 ? "#c8322b" : "#c9a54a"; ctx.fillRect(x - 24, y + 2, 48 * d.hp / DOOR_HP, 5);
+      }
+      if (d !== G.nearDoor) continue;
+      let txt = d.broken ? "Repair blast door" : d.open ? "Close blast door" : "Open blast door";
+      if (!touchMode) txt = "[F] " + txt;
+      if (d.broken && Doors.repairProblem()) txt += " (needs reachable steel alloy + repair kit)";
+      label(txt, x, y - 6, d.broken ? "#e0766f" : "#ffffff");
+    }
+  }
+  function main(){
+    const p = G.player, touch = touchMode, pad = touch ? 14 : 22;
+    const bw = touch ? Math.min(150, vw * 0.36) : Math.min(210, vw * 0.3);
+    ctx.textBaseline = "top"; ctx.textAlign = "left";
+    ctx.fillStyle = "#d6d9d3"; ctx.font = `700 ${touch ? 14 : 16}px ${FONT}`; ctx.fillText("Carrie 03006", pad, pad);
+    ctx.fillStyle = "#80868a"; ctx.font = `400 ${touch ? 11 : 13}px ${FONT}`;
+    const mm = Math.floor(G.time / 60), ss = Math.floor(G.time % 60).toString().padStart(2, "0");
+    ctx.fillText(touch ? `${mm}:${ss}, ${G.kills} down` : `Sector 3, survived ${mm}:${ss}, ${G.kills} entit${G.kills === 1 ? "y" : "ies"} down`, pad, pad + (touch ? 18 : 21));
+    let sy = pad + (touch ? 34 : 40);
+    if (p.resting){ ctx.fillStyle = "#9fd8c4"; ctx.fillText("Resting in the command room", pad, sy); sy += 18; }
+    else if (inBase(p.x, p.y) && p.hp < 100){ ctx.fillStyle = "#c9a54a"; ctx.fillText("Can't rest: " + (p.hunger <= 20 || p.thirst <= 20 ? "eat and drink first" : "something is close"), pad, sy); sy += 18; }
+    if (Inv.bag.zip > 0.001 && !G.invOpen){ ctx.fillStyle = "#c9a54a"; ctx.fillText(`Bag ${Math.round(Inv.bag.zip * 100)}% open. Things can fall out.`, pad, sy); }
+    if (touch){
+      const y0 = pad + 76;
+      bar(pad, y0, bw, "Health", p.hp, p.hp < 30 ? "#c8322b" : "#d6d9d3");
+      bar(pad, y0 + 28, bw, "Hunger", p.hunger, p.hunger < 20 ? "#c8322b" : "#e0a84a");
+      bar(pad, y0 + 56, bw, "Thirst", p.thirst, p.thirst < 20 ? "#c8322b" : "#3fa9f5");
+    } else {
+      const by = vh - pad - 8;
+      bar(pad, by - 64, bw, "Health", p.hp, p.hp < 30 ? "#c8322b" : "#d6d9d3");
+      bar(pad, by - 32, bw, "Hunger", p.hunger, p.hunger < 20 ? "#c8322b" : "#e0a84a");
+      bar(pad, by, bw, "Thirst", p.thirst, p.thirst < 20 ? "#c8322b" : "#3fa9f5");
+    }
+    if (!(G.invOpen && !touch)){
+      const big = touch ? 32 : 44, ay = touch ? pad + 50 : vh - pad - 14;
+      ctx.textAlign = "right"; ctx.textBaseline = "alphabetic";
+      ctx.fillStyle = p.mag < 15 ? "#c8322b" : "#e6e8e2"; ctx.font = `700 ${big}px ${FONT}`;
+      ctx.fillText(p.reload > 0 ? "--" : String(p.mag), vw - pad - (touch ? 42 : 54), ay);
+      ctx.fillStyle = "#80868a"; ctx.font = `600 ${touch ? 14 : 18}px ${FONT}`; ctx.fillText("/60", vw - pad, ay);
+      ctx.font = `400 ${touch ? 11 : 13}px ${FONT}`;
+      ctx.fillText(p.reload > 0 ? "Reloading" : "V1-Strikefish", vw - pad, ay - big - 8);
+      const my = touch ? ay + 8 : vh - pad - 8, spare = Inv.count("belt", "mag");
+      for (let i = 0; i < Math.max(spare, 1); i++){ ctx.fillStyle = spare ? "#c9a54a" : "rgba(200,50,43,0.6)"; ctx.fillRect(vw - pad - 6 - i * 10, my, 6, 10); }
+      if (p.reload > 0){ ctx.fillStyle = "#e6e8e2"; ctx.fillRect(vw - pad - 100, my + 14, 100 * (1 - p.reload / 1.8), 2); }
+      ctx.fillStyle = "#80868a"; ctx.font = `600 ${touch ? 11 : 13}px ${FONT}`;
+      ctx.fillText(`Belt ${Inv.used("belt")}/6   Bag ${Inv.used("bag")}/8` + (touch ? "" : "  (I)"), vw - pad, touch ? my + 32 : ay - big - 28);
+    }
+    ctx.textAlign = "left"; ctx.font = `600 ${touch ? 12 : 14}px ${FONT}`;
+    const tx0 = !touch && G.cookOpen ? 420 : pad;
+    const maxW = touch ? ((G.invOpen || G.cookOpen) && vw > vh ? vw * 0.5 - pad * 2 : vw - pad * 2) : Math.min(620, vw - pad * 2 - (G.invOpen ? 400 : 0));
+    let ty = touch ? pad + 168 + (G.hands && vh > vw ? 170 : 0) : vh - pad - 120 - (G.hands ? 150 : 0);
+    for (let i = G.toasts.length - 1; i >= 0; i--){
+      const t = G.toasts[i], a = Math.min(1, (t.life - t.t) * 2, t.t * 6);
+      ctx.globalAlpha = a; ctx.fillStyle = t.color; ctx.fillText(t.text, tx0, ty, maxW);
+      ty += touch ? 18 : -22;
+    }
+    ctx.globalAlpha = 1;
+  }
+  function minimap(){
+    const s = touchMode ? Math.min(1.5, vw * 0.4 / W) : Math.max(1.4, Math.min(2.2, vw / 520));
+    const mw = W * s, mh = H * s, x0 = vw - mw - (touchMode ? 14 : 20), y0 = touchMode ? 118 : 20;
+    ctx.fillStyle = "rgba(6,8,9,0.8)"; ctx.fillRect(x0 - 6, y0 - 6, mw + 12, mh + 12);
+    for (let j = 0; j < H; j++) for (let i = 0; i < W; i++){
+      if (!G.explored[j * W + i]) continue;
+      const t = map[j * W + i];
+      if (t === WALL || t === VOID || t === DOOR) continue;
+      ctx.fillStyle = t === GRATE ? "#4d555b" : t === SEALED ? "#8a3a2a" : "#2f3336";
+      ctx.fillRect(x0 + i * s, y0 + j * s, s + 0.2, s + 0.2);
+    }
+    ctx.strokeStyle = "rgba(159,216,196,0.6)"; ctx.lineWidth = 1;
+    ctx.strokeRect(x0 + BASE.x * s, y0 + BASE.y * s, BASE.w * s, BASE.h * s);
+    for (const d of doors){
+      ctx.fillStyle = d.broken ? "#c8322b" : doorSolid(d) ? "#c9a54a" : "#4a8f78";
+      for (const [tx, ty] of d.tiles) ctx.fillRect(x0 + tx * s, y0 + ty * s, s + 0.2, s + 0.2);
+    }
+    ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(x0 + G.player.x / T * s, y0 + G.player.y / T * s, 2.5, 0, 7); ctx.fill();
+  }
+  function crosshair(){
+    const m = Input.mouse;
+    ctx.strokeStyle = "rgba(230,232,226,0.85)"; ctx.lineWidth = 1.5;
+    const cx = m.x, cy = m.y, gap = 5 + (G.time - G.lastShot < 0.12 ? 4 : 0);
+    ctx.beginPath();
+    ctx.moveTo(cx - gap - 7, cy); ctx.lineTo(cx - gap, cy); ctx.moveTo(cx + gap, cy); ctx.lineTo(cx + gap + 7, cy);
+    ctx.moveTo(cx, cy - gap - 7); ctx.lineTo(cx, cy - gap); ctx.moveTo(cx, cy + gap); ctx.lineTo(cx, cy + gap + 7);
+    ctx.stroke();
+    const why = G.hands ? "Hands full" : G.invOpen ? "Hands in the bag" : G.cookOpen ? "Hands busy cooking" : "";
+    if (why){ ctx.fillStyle = "rgba(230,232,226,0.7)"; ctx.font = `600 11px ${FONT}`; ctx.textAlign = "center"; ctx.fillText(why, cx, cy + 26); }
+  }
+  function touch(){
+    const p = G.player, [px, py] = Draw.toScreen(p.x, p.y);
+    const rx = px + Math.cos(p.a) * 110, ry = py + Math.sin(p.a) * 110;
+    ctx.strokeStyle = "rgba(230,232,226,0.6)"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(rx, ry, 6, 0, 7); ctx.stroke();
+    for (const k of ["move", "aim"]){
+      const s = Input.sticks[k]; if (!s) continue;
+      ctx.strokeStyle = "rgba(214,217,211,0.3)"; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(s.ox, s.oy, Input.R, 0, 7); ctx.stroke();
+      ctx.fillStyle = k === "aim" ? "rgba(255,210,140,0.35)" : "rgba(214,217,211,0.28)";
+      ctx.beginPath(); ctx.arc(s.x, s.y, 22, 0, 7); ctx.fill();
+    }
+    if (G.time < 12 && G.state === "play" && !G.invOpen){
+      ctx.globalAlpha = Math.min(1, (12 - G.time) / 2) * 0.55;
+      ctx.fillStyle = "#d6d9d3"; ctx.font = `600 13px ${FONT}`; ctx.textBaseline = "alphabetic";
+      ctx.textAlign = "left"; if (!Input.sticks.move) ctx.fillText("Drag here to move", 24, vh * 0.72);
+      ctx.textAlign = "right"; if (!Input.sticks.aim) ctx.fillText("Drag here to aim and fire", vw - 24, vh * 0.72);
+      ctx.globalAlpha = 1;
+    }
+  }
+  return {itemLabels, doorLabels, main, minimap, crosshair, touch};
+})();
+
+/* PanelScroll: swiping on the dispenser view or an empty bag slot scrolls the panel,
+   since those areas capture touches for dragging and don't scroll natively. */
+const PanelScroll = (() => {
+  let s = null, vel = 0, box = null;
+  function start(e, b){
+    if (!b || b.scrollHeight <= b.clientHeight) return false;
+    s = {id:e.pointerId, y:e.clientY, t:performance.now()}; box = b; vel = 0; return true;
+  }
+  addEventListener("pointermove", e => {
+    if (!s || s.id !== e.pointerId) return;
+    const dy = e.clientY - s.y, now = performance.now();
+    box.scrollTop -= dy; vel = dy / Math.max(1, now - s.t) * 16; s.y = e.clientY; s.t = now;
+  });
+  function glide(){ if (!box || Math.abs(vel) < 0.4) return; box.scrollTop -= vel; vel *= 0.93; requestAnimationFrame(glide); }
+  const end = e => { if (!s || s.id !== e.pointerId) return; if (performance.now() - s.t > 80) vel = 0; s = null; glide(); };   // flick to keep it gliding
+  addEventListener("pointerup", end); addEventListener("pointercancel", end);
+  return {start};
+})();
+
+/* ---------- 11. InvUI: zip, drag and drop, actions ---------- */
+const InvUI = (() => {
+  const panel = $("invPanel"), grids = {belt:$("beltGrid"), bag:$("bagGrid")};
+  const cover = $("bagCover"), cc = cover.getContext("2d"), pull = $("zipPull"), tab = $("zipTab"), detail = $("detail"), ghost = $("ghost");
+  const els = {belt:[], bag:[]};
+  let sel = null, note = "", lastVer = -1, lastKey = "", drag = null, zipDrag = null;
+  let coverKey = "", tabAngle = 0, tabVel = 0, lastZip = 0, zipGrab = 0, zipX0 = 0, zipMoved = false;
+
+  // woven canvas texture for the bag fabric
+  const weave = (() => {
+    const c = document.createElement("canvas"); c.width = c.height = 8; const x = c.getContext("2d");
+    x.fillStyle = "#1f2123"; x.fillRect(0, 0, 8, 8);
+    x.fillStyle = "#27292c"; x.fillRect(0, 0, 4, 1); x.fillRect(4, 4, 4, 1); x.fillRect(0, 2, 1, 2); x.fillRect(4, 6, 1, 2);
+    x.fillStyle = "#17181a"; x.fillRect(2, 1, 1, 3); x.fillRect(6, 5, 1, 3); x.fillRect(4, 2, 3, 1); x.fillRect(0, 6, 3, 1);
+    return c;
+  })();
+  function drawCover(){
+    const r = grids.bag.getBoundingClientRect(), W = Math.round(r.width), Hh = Math.round(r.height);
+    if (!W || !Hh) return;
+    const d = Math.min(window.devicePixelRatio || 1, 2), z = Inv.bag.zip;
+    const key = [W, Hh, d, z.toFixed(4)].join();
+    if (key === coverKey) return;
+    coverKey = key;
+    if (cover.width !== Math.round(W * d) || cover.height !== Math.round(Hh * d)){ cover.width = Math.round(W * d); cover.height = Math.round(Hh * d); }
+    const c = cc; c.setTransform(d, 0, 0, d, 0, 0); c.clearRect(0, 0, W, Hh);
+    const mid = Hh / 2, LIP = 7, px = z * W, V = Inv.TAPER * W / (1 + Inv.PARK), full = z >= 0.999, step = 2;
+    const openAt = x => full ? 1 : x >= px ? 0 : Math.min(1, (px - x) / V);
+    const gap = x => { const t = openAt(x); return t * t * (3 - 2 * t) * (mid - LIP); };
+    const lip = (x, sgn) => mid + sgn * gap(x);
+    c.fillStyle = c.createPattern(weave, "repeat"); c.fillRect(0, 0, W, Hh);
+    let g = c.createLinearGradient(0, 0, 0, Hh);
+    g.addColorStop(0, "rgba(0,0,0,0.45)"); g.addColorStop(0.42, "rgba(255,255,255,0.05)"); g.addColorStop(0.5, "rgba(0,0,0,0.1)");
+    g.addColorStop(0.58, "rgba(255,255,255,0.04)"); g.addColorStop(1, "rgba(0,0,0,0.5)");
+    c.fillStyle = g; c.fillRect(0, 0, W, Hh);
+    c.strokeStyle = "rgba(150,153,156,0.3)"; c.lineWidth = 1; c.setLineDash([4, 3]);
+    c.strokeRect(5.5, 5.5, W - 11, Hh - 11); c.setLineDash([]);
+    c.strokeStyle = "rgba(0,0,0,0.6)"; c.lineWidth = 2; c.strokeRect(1, 1, W - 2, Hh - 2);
+    const end = Math.min(px, W);
+    const openPath = () => {
+      c.beginPath(); c.moveTo(0, lip(0, -1));
+      for (let x = 0; x <= end; x += step) c.lineTo(x, lip(x, -1));
+      c.lineTo(end, mid);
+      for (let x = end; x >= 0; x -= step) c.lineTo(x, lip(x, 1));
+      c.closePath();
+    };
+    if (px > 0.5){
+      c.globalCompositeOperation = "destination-out"; c.fillStyle = "#000"; openPath(); c.fill();
+      c.globalCompositeOperation = "source-over";
+      c.save(); openPath(); c.clip();
+      for (const sgn of [-1, 1]){
+        c.beginPath();
+        for (let x = 0; x <= end; x += step) c.lineTo(x, lip(x, sgn));
+        c.shadowColor = "rgba(0,0,0,0.85)"; c.shadowBlur = 14; c.shadowOffsetY = -sgn * 6;
+        c.strokeStyle = "#1b1d18"; c.lineWidth = 6; c.stroke();
+      }
+      c.restore();
+    }
+    c.lineCap = "round";
+    const tape = sgn => {
+      c.beginPath();
+      for (let x = 0; x <= W; x += step) c.lineTo(x, x < px ? lip(x, sgn) + sgn * 3 : mid + sgn * 3);
+      c.strokeStyle = "#17191a"; c.lineWidth = 6; c.stroke();
+      c.beginPath();
+      for (let x = 0; x <= W; x += step) c.lineTo(x, x < px ? lip(x, sgn) + sgn * 6 : mid + sgn * 6);
+      c.strokeStyle = "rgba(255,255,255,0.08)"; c.lineWidth = 1; c.stroke();
+    };
+    tape(-1); tape(1);
+    for (let x = 1, k = 0; x < W - 2; x += 3, k++){
+      const top = k % 2 === 0;
+      let y;
+      if (x >= px - 1) y = top ? mid - 3.2 : mid - 0.2;
+      else y = top ? lip(x, -1) - 1.6 : lip(x, 1) - 1.8;
+      c.fillStyle = "#b3ae97"; c.fillRect(x, y, 2.4, 3.4);
+      c.fillStyle = "#6a6554"; c.fillRect(x, y + 2.6, 2.4, 0.8);
+    }
+    c.fillStyle = "#8f8a74";
+    c.fillRect(1, mid - 5, 4, 10); c.fillRect(W - 5, mid - 5, 4, 10);
+  }
+  function swingTab(dt){
+    const z = Inv.bag.zip, v = (z - lastZip) / Math.max(dt, 1e-3); lastZip = z;
+    tabVel += (-tabAngle * 90 - tabVel * 9 - v * 260) * dt;
+    tabAngle = clamp(tabAngle + tabVel * dt, -55, 55);
+    tab.setAttribute("transform", `rotate(${tabAngle.toFixed(2)} 17 15)`);
+  }
+
+  function build(){
+    for (const c of ["belt", "bag"]){
+      for (let i = 0; i < Inv.C[c].size; i++){
+        const cell = document.createElement("div"); cell.className = "cell";
+        if (c === "bag"){ cell.style.gridColumn = (i % Inv.BAG_COLS) + 1; cell.style.gridRow = Math.floor(i / Inv.BAG_COLS) + 1; }
+        const b = document.createElement("button"); b.className = "slot empty"; b.dataset.c = c; b.dataset.i = i; b.dataset.t = "";
+        cell.appendChild(b); grids[c].appendChild(cell); els[c].push(b);
+      }
+    }
+    grids.bag.appendChild(cover); grids.bag.appendChild(pull); // the cover sits on top of the bag slots
+    if (window.ResizeObserver) new ResizeObserver(() => { coverKey = ""; drawCover(); }).observe(grids.bag);
+  }
+  function setNote(msg){ note = msg; lastKey = ""; }
+  function select(c, i){ sel = {c, i}; note = ""; lastKey = ""; lastVer = -1; }
+
+  function refreshSlots(){
+    for (const c of ["belt", "bag"]) els[c].forEach((el, i) => {
+      const it = Inv.get(c, i), key = itemKey(it);
+      if (el.dataset.t !== key){
+        el.dataset.t = key;
+        el.innerHTML = it ? slotHTML(it) : "";
+        el.setAttribute("aria-label", it ? nameOf(it) : "Empty slot");
+      }
+      el.classList.toggle("empty", !it);
+      el.classList.toggle("sel", !!(it && sel && sel.c === c && sel.i === i));
+    });
+    $("beltCount").textContent = `${Inv.used("belt")} of 6, magazines only`;
+  }
+  function slotHTML(it){
+    let h = iconOf(it) + `<span>${shortName(it)}</span>`;
+    if (it.type === "packets" && it.count > 1) h += `<b class="badge">×${it.count}</b>`;
+    if (it.type === "water") h += `<i class="lvl"><i style="width:${pct(it.amount)}"></i></i>`;
+    if ((it.type === "food" || it.type === "cooked") && it.portion < 0.999) h += `<i class="lvl food"><i style="width:${pct(it.portion)}"></i></i>`;
+    if (it.type === "food" && it.state === "open" && it.packets) h += `<i class="tabs"><i class="s" title="Seasoning"></i><i class="t" title="Toppings"></i></i>`;
+    return h;
+  }
+  function refreshZip(){
+    const z = Inv.bag.zip, pct = Math.round(z * 100);
+    pull.style.left = (z * 100) + "%";
+    drawCover();
+    pull.setAttribute("aria-valuenow", pct);
+    const st = $("bagState");
+    st.textContent = z <= 0.001 ? `${Inv.used("bag")} of 8, zipped. Drag the zipper to open.` : z >= 0.999 ? `${Inv.used("bag")} of 8, fully open` : `${Inv.used("bag")} of 8, ${pct}% open`;
+    st.classList.toggle("warn", z > 0.001);
+  }
+  function refreshDetail(){
+    const it = sel && Inv.get(sel.c, sel.i);
+    const reach = it && Inv.reachable(sel.c, sel.i);
+    const d = G.nearDoor, canRepair = !!(d && Doors.needsRepair(d));
+    const key = [sel && sel.c, sel && sel.i, itemKey(it), reach, note, canRepair, G.player.reload > 0, G.player.mag, !!G.hands].join("|");
+    if (key === lastKey) return;
+    lastKey = key;
+    if (!it){
+      detail.innerHTML = `<p class="muted">Select an item to see what it is. Drag items to move or swap them. Only fully unzipped bag slots can be reached.</p>` + (note ? `<p class="note">${note}</p>` : "");
+      return;
+    }
+    if (!reach && !Inv.atRisk(sel.i)){
+      detail.innerHTML = `<h3>Something in the bag</h3><p>The bag is zipped over this slot. Unzip it to see and reach what's inside.</p>` + (note ? `<p class="note">${note}</p>` : "");
+      return;
+    }
+    let acts = "";
+    if (!reach) acts = `<p class="note">This slot is zipped shut. Open the bag past it to reach it.</p>`;
+    else {
+      let main = "";
+      if (it.type === "food"){
+        if (it.state === "sealed") main = `<button data-act="open">Peel the lid</button>`;
+        else {
+          main = `<button data-act="raw">Eat raw</button>`;
+          if (it.packets) main += `<button class="ghost" data-act="seasoned">Eat raw with seasoning</button><button class="ghost" data-act="takepk">Take the packets out</button>`;
+        }
+      }
+      else if (it.type === "cooked") main = `<button data-act="eat">Eat</button>`;
+      else if (it.type === "water") main = `<button data-act="drink">Drink</button>`;
+      else if (it.type === "mag") main = sel.c === "belt" ? `<button data-act="load">Load</button>` : "";
+      else if (it.type === "alloy" || it.type === "kit") main = `<button data-act="repair">Repair door</button>`;
+      acts = (it.type === "mag" && sel.c === "bag" ? `<p class="note">Magazines in the bag can't be reloaded from. Drag it onto the utility belt first.</p>` : "")
+        + (G.hands && /eat|drink|raw|seasoned/.test(main) ? `<p class="note">Carrie's hands are full. Stop what she's eating or drinking first.</p>` : "")
+        + `<div class="actions">${main}<button class="danger" data-act="discard">Discard</button></div>`;
+    }
+    detail.innerHTML = `<h3>${nameOf(it)}</h3><p>${descOf(it)}</p>` + (note ? `<p class="note">${note}</p>` : "") + acts;
+  }
+  let lastT = performance.now();
+  function refresh(force){
+    if (!G.invOpen && !G.cookOpen) return;
+    const now = performance.now(), fdt = Math.min(0.05, (now - lastT) / 1000); swingTab(fdt); lastT = now;
+    // dragging an item near the top or bottom of a scrolling panel scrolls it
+    if (drag && drag.started && drag.py != null){
+      const box = drag.el.closest("#cookPanel, #invPanel");
+      if (box && box.scrollHeight > box.clientHeight){
+        const r = box.getBoundingClientRect(), edge = 60;
+        const v = drag.py < r.top + edge ? -(r.top + edge - drag.py) : drag.py > r.bottom - edge ? drag.py - (r.bottom - edge) : 0;
+        if (v){ box.scrollTop += v * 12 * fdt; setOver(slotAt(drag.px, drag.py)); if (G.cookOpen) CookUI.hover(drag.px, drag.py); }
+      }
+    }
+    if (force || Inv.ver !== lastVer){ lastVer = Inv.ver; refreshSlots(); refreshZip(); }
+    if (sel && !Inv.get(sel.c, sel.i)) sel = null;
+    refreshDetail();
+  }
+  function act(kind){
+    const it = sel && Inv.get(sel.c, sel.i), p = G.player;
+    if (!it) return;
+    if (!Inv.reachable(sel.c, sel.i)){ setNote("That slot is zipped shut."); return; }
+    if (/^(eat|raw|seasoned|drink)$/.test(kind) && G.hands){ setNote("Carrie's hands are full."); return; }
+    if (kind === "open"){ it.state = "open"; Inv.bump(); toast("Peeled the lid off the noodles.", "#e0a84a", 1.6); }
+    else if (kind === "raw") Act.startEat(sel.c, sel.i, "raw");
+    else if (kind === "seasoned") Act.startEat(sel.c, sel.i, "seasoned");
+    else if (kind === "eat") Act.startEat(sel.c, sel.i, "cooked");
+    else if (kind === "drink") Act.startDrink(sel.c, sel.i);
+    else if (kind === "takepk"){
+      const at = Inv.add({type:"packets", count:1});
+      if (at.why) setNote(at.why === "zipped" ? "No reachable room for the packets. Open the bag further." : "The bag is full.");
+      else { it.packets = false; Inv.bump(); toast("Took the seasoning and toppings out.", "#d9823b", 1.6); }
+    }
+    else if (kind === "load"){
+      if (p.reload > 0) setNote("Carrie is already reloading.");
+      else if (p.mag >= 60) setNote("The rifle is already full.");
+      else { Combat.startReload(); setNote("Reloading from the utility belt."); }
+    } else if (kind === "repair"){
+      const d = G.nearDoor;
+      if (!d || !Doors.needsRepair(d)) setNote("Stand next to a broken or damaged blast door to use this.");
+      else if (Doors.repair(d)) setNote("");
+      else setNote(Doors.repairProblem() || "");
+    } else if (kind === "discard") Pickups.drop(sel.c, sel.i);
+  }
+  detail.addEventListener("click", e => { const b = e.target.closest("[data-act]"); if (b) act(b.dataset.act); });
+
+  // the zipper: only the pull can be grabbed
+  pull.addEventListener("pointerdown", e => {
+    e.preventDefault(); e.stopPropagation();
+    const r = grids.bag.getBoundingClientRect();
+    zipDrag = e.pointerId; zipGrab = e.clientX - (r.left + Inv.bag.zip * r.width); zipX0 = e.clientX; zipMoved = false;
+    try { pull.setPointerCapture(e.pointerId); } catch (_) {}
+  });
+  pull.addEventListener("pointermove", e => {
+    if (zipDrag !== e.pointerId) return;
+    const r = grids.bag.getBoundingClientRect();
+    if (!zipMoved && Math.abs(e.clientX - zipX0) < 5) return;   // a tap or a wobble doesn't move the slider
+    zipMoved = true;
+    let z = (e.clientX - zipGrab - r.left) / r.width;
+    if (z > 0.96) z = 1; if (z < 0.02) z = 0;   // the slider seats against the end stops
+    Inv.setZip(z);
+  });
+  const endZip = e => { if (zipDrag === e.pointerId) zipDrag = null; };
+  pull.addEventListener("pointerup", endZip); pull.addEventListener("pointercancel", endZip);
+  pull.addEventListener("keydown", e => {
+    if (e.key === "ArrowRight"){ Inv.setZip(Inv.bag.zip + 0.05); e.preventDefault(); }
+    if (e.key === "ArrowLeft"){ Inv.setZip(Inv.bag.zip - 0.05); e.preventDefault(); }
+  });
+
+  // dragging items between slots
+  let over = null;
+  const slotAt = (x, y) => { const el = document.elementFromPoint(x, y); return el && el.closest ? el.closest(".slot") : null; };
+  function setOver(el){ if (over === el) return; if (over) over.classList.remove("over"); over = el; if (over) over.classList.add("over"); }
+  document.addEventListener("pointerdown", e => {
+    const el = e.target.closest && e.target.closest(".slot");
+    if (el && el.classList.contains("empty")){ if (PanelScroll.start(e, el.closest("#cookPanel, #invPanel"))) e.preventDefault(); return; }
+    if (!el) return;
+    e.preventDefault();
+    if (drag){ drag.el.classList.remove("dragging"); ghost.style.display = "none"; setOver(null); }
+    drag = {id:e.pointerId, c:el.dataset.c, i:+el.dataset.i, x0:e.clientX, y0:e.clientY, started:false, el};
+  });
+  addEventListener("pointermove", e => {
+    if (!drag || drag.id !== e.pointerId) return;
+    if (!drag.started){
+      if (Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < 7) return;
+      if (!Inv.reachable(drag.c, drag.i)){ select(drag.c, drag.i); setNote("That slot is still zipped. Open the bag past it first."); drag = null; return; }
+      const it = Inv.get(drag.c, drag.i); if (!it){ drag = null; return; }
+      drag.started = true; drag.el.classList.add("dragging");
+      ghost.innerHTML = iconOf(it); ghost.style.display = "flex";
+    }
+    ghost.style.left = e.clientX + "px"; ghost.style.top = e.clientY + "px";
+    drag.px = e.clientX; drag.py = e.clientY;
+    setOver(slotAt(e.clientX, e.clientY));
+    if (G.cookOpen) CookUI.hover(e.clientX, e.clientY);
+  });
+  function endDrag(e){
+    if (!drag || drag.id !== e.pointerId) return;
+    const d = drag; drag = null;
+    setOver(null); ghost.style.display = "none"; d.el.classList.remove("dragging");
+    if (!d.started){
+      select(d.c, d.i);
+      if (!Inv.reachable(d.c, d.i)) setNote("That slot is still zipped. Open the bag past it first.");
+      return;
+    }
+    const tgt = e.type === "pointercancel" ? null : slotAt(e.clientX, e.clientY);
+    if (G.cookOpen) CookUI.hover(null);
+    if (!tgt){ if (!(G.cookOpen && CookUI.dropFromBag(d.c, d.i, e.clientX, e.clientY))) select(d.c, d.i); return; }
+    const err = Inv.moveItem(d.c, d.i, tgt.dataset.c, +tgt.dataset.i);
+    if (err){ select(d.c, d.i); setNote(err); }
+    else select(tgt.dataset.c, +tgt.dataset.i);
+  }
+  addEventListener("pointerup", endDrag);
+  addEventListener("pointercancel", endDrag);
+
+  function open(){
+    if (G.state !== "play" || G.invOpen) return;
+    if (G.cookOpen) CookUI.close();
+    G.invOpen = true; document.body.classList.add("invopen"); panel.hidden = false;
+    Input.mouse.down = false; Input.sticks.aim = null;
+    if (!sel || !Inv.get(sel.c, sel.i)){ const i = Inv.C.belt.slots.findIndex(Boolean); sel = i >= 0 ? {c:"belt", i} : null; }
+    note = ""; lastKey = ""; coverKey = ""; lastZip = Inv.bag.zip; tabAngle = tabVel = 0; lastT = performance.now();
+    refresh(true); requestAnimationFrame(() => { coverKey = ""; drawCover(); });
+  }
+  function close(){
+    if (!G.invOpen) return;
+    G.invOpen = false; document.body.classList.remove("invopen"); panel.hidden = true;
+    drag = null; zipDrag = null; setOver(null); ghost.style.display = "none";
+  }
+  const toggle = () => (G.invOpen ? close() : open());
+  $("invClose").onclick = close;
+  // the bag section can be shown in the inventory or at the dispenser
+  function moveBag(host){
+    const sec = $("bagSection");
+    if (sec.parentNode !== host) host.appendChild(sec);
+    drag = null; zipDrag = null; setOver(null); ghost.style.display = "none";
+    coverKey = ""; lastZip = Inv.bag.zip; lastT = performance.now(); lastVer = -1;
+    refresh(true); requestAnimationFrame(() => { coverKey = ""; drawCover(); });
+  }
+  return {build, open, close, toggle, refresh, moveBag, reset(){ sel = null; note = ""; }};
+})();
+
+/* ---------- 11b. Station, CookUI, ActView ----------
+   Station: the cup on the dispenser's drip tray and everything done to it.
+   CookUI: the dispenser panel and its hands-on cooking view.
+   ActView: the close-up of Carrie eating or drinking. */
+const Station = (() => {
+  const s = {};
+  const MAX_PACKETS = 8;            // the cup's own pair plus three extra pairs
+  function reset(){ Object.assign(s, {cup:null, lid:0, lidOff:false, tray:[], added:0, fill:0, spilled:0, steep:-1, cooked:null, pouring:false, fx:[], note:"",
+    bottle:null, tilt:0, tipping:false, flow:0, over:0}); }
+  // a Blue Water bottle held over the tank; tip it to pour
+  function takeBottle(c, i){
+    if (s.bottle){ say("Carrie is already holding a bottle over the tank."); return; }
+    s.bottle = {item:Inv.take(c, i), from:{c, i}}; s.tilt = 0; say("");
+  }
+  function putBottle(){
+    if (!s.bottle) return;
+    const it = s.bottle.item, at = Inv.add(it, s.bottle.from);
+    if (at.why){ Pickups.dropItem(it); toast("No free slot in reach, so Carrie set the bottle down.", "#c9a54a", 3); }
+    s.bottle = null; s.tilt = 0; s.flow = 0;
+  }
+  // tipping angle (degrees from upright) at which water starts to come out: a fuller bottle pours sooner
+  const pourAngle = b => 95 + (1 - b.amount) * 55;
+  function trayPacket(kind){
+    const n = s.tray.length;
+    s.tray.push({kind, u:0.07 + (n % 4) * 0.075 + (kind === "t" ? 0.02 : 0), v:0.875 + Math.floor(n / 4) * 0.02 + (kind === "t" ? 0.01 : 0)});
+  }
+  const say = msg => { s.note = msg; };
+  function placeCup(c, i){
+    if (s.cup || s.cooked){ say("There's already a cup on the tray."); return; }
+    const cup = Inv.take(c, i);
+    s.cup = cup; s.lid = cup.state === "open" ? 1 : 0; s.lidOff = false; s.added = 0; s.fill = 0; s.spilled = 0; s.steep = -1;
+    if (cup.packets){ cup.packets = false; trayPacket("s"); trayPacket("t"); }
+    say("");
+  }
+  function addPackets(c, i){
+    if (!s.cup){ say("Put a noodle cup on the tray first."); return; }
+    if (s.fill > 0.01 || s.steep > 0){ say("Packets go in before the water."); return; }
+    if (s.added + s.tray.length + 2 > MAX_PACKETS){ say("That's as much seasoning as one cup can take."); return; }
+    Inv.takeOne(c, i); trayPacket("s"); trayPacket("t"); say("");
+  }
+  function returnPackets(){
+    const pairs = Math.ceil(s.tray.length / 2); s.tray = [];
+    for (let k = 0; k < pairs; k++){
+      const at = Inv.add({type:"packets", count:1});
+      if (at.why) Pickups.dropItem({type:"packets", count:1});
+    }
+  }
+  function putBack(){
+    if (!s.cup) return;
+    if (s.fill > 0.01){ say("There's water in it now. Let it steep."); return; }
+    const hasS = s.tray.findIndex(p => p.kind === "s"), hasT = s.tray.findIndex(p => p.kind === "t");
+    if (s.added === 0 && hasS >= 0 && hasT >= 0){ s.cup.packets = true; s.tray = s.tray.filter((p, k) => k !== hasS && k !== hasT); }
+    s.cup.state = s.lid > 0.02 ? "open" : "sealed";
+    const at = Inv.add(s.cup);
+    if (at.why){ if (s.cup.packets){ s.cup.packets = false; trayPacket("s"); trayPacket("t"); } say(at.why === "zipped" ? "No reachable empty slot. Open the bag further." : "The bag is full."); return; }
+    s.cup = null; returnPackets(); say("");
+  }
+  function peel(v){
+    if (!s.cup) return;
+    s.lid = clamp(v, 0, 1);
+    if (s.lid >= 0.96){ s.lid = 1; s.lidOff = true; s.cup.state = "open"; }
+  }
+  function dropIn(k){
+    const p = s.tray.splice(k, 1)[0];
+    s.added++;
+    for (let n = 0; n < 26; n++) s.fx.push({u:0.5 + (Math.random() - 0.5) * 0.18, y:-30 - Math.random() * 30, vy:40 + Math.random() * 80, life:0.6 + Math.random() * 0.4, t:0,
+      c: p.kind === "s" ? (Math.random() < 0.5 ? "#c9542a" : "#e08a3a") : (Math.random() < 0.5 ? "#6fae4a" : "#d98a3a"), sz: p.kind === "s" ? 1.4 : 2.6});
+  }
+  function startSteep(){
+    if (s.fill < 0.25){ say("Pour some water in first."); return; }
+    s.pouring = false; s.steep = 4; say("");
+  }
+  function cook(){
+    const cup = s.cup, pairs = s.added / 2 + (cup.seasoned ? 1 : 0), f = Math.min(s.fill, 1);
+    const soak = 0.6 + 0.4 * f;
+    const hunger = (32 + 8 * Math.min(pairs, 1) + 6 * clamp(pairs - 1, 0, 3)) * soak * cup.portion;
+    const thirst = (8 * f - 3 * Math.max(0, pairs - 1)) * cup.portion;
+    s.cooked = {type:"cooked", portion:1, hunger:Math.round(hunger), thirst:Math.round(thirst)};
+    s.cup = null; s.steep = -1;
+    toast(`The noodles are ready. About +${Math.round(hunger)} hunger${thirst ? `, ${thirst > 0 ? "+" : ""}${Math.round(thirst)} thirst` : ""}.`, "#e0a84a", 3);
+  }
+  function eatNow(){
+    if (!s.cooked) return;
+    if (!Act.startEatItem(s.cooked)){ say("Carrie's hands are full."); return; }
+    s.cooked = null; returnPackets(); CookUI.close();
+  }
+  function keep(){
+    if (!s.cooked) return;
+    const at = Inv.add(s.cooked);
+    if (at.why){ say(at.why === "zipped" ? "No reachable empty slot. Open the bag further." : "The bag is full."); return; }
+    toast("Cooked noodles packed away. Keep the bag zipped or they'll spill.", "#e0a84a", 3);
+    s.cooked = null; returnPackets(); say("");
+  }
+  function update(dt){
+    if (s.bottle){
+      if (!s.tipping) s.tilt = Math.max(0, s.tilt - 260 * dt);    // let go and it stands back up
+      const b = s.bottle.item, th = pourAngle(b);
+      s.flow = s.tilt > th ? clamp((s.tilt - th) / 35, 0, 1) * 0.5 : 0;
+      if (s.flow > 0){
+        const f = Math.min(b.amount, s.flow * dt), a = Dispenser.add(f);
+        b.amount -= f;
+        if (a < f - 1e-6) s.over = 0.5;                              // tank's full: it runs over the side
+        if (b.amount <= 0.002){ s.bottle = null; s.tilt = 0; s.flow = 0; s.tipping = false; toast("The bottle's empty. Carrie tosses it.", "#3fa9f5", 2); }
+      }
+    }
+    if (s.over > 0) s.over -= dt;
+    if (s.pouring && s.cup && s.lid >= 1 && s.steep < 0){
+      if (Dispenser.boiling()){
+        const want = 0.42 * dt, got = Dispenser.take(want * Dispenser.CUP) / Dispenser.CUP;
+        s.fill = Math.min(1.3, s.fill + got);
+        if (s.fill > 1.1) s.spilled = Math.min(1, s.spilled + dt);
+      }
+    }
+    if (s.steep > 0){ s.steep -= dt; if (s.steep <= 0) cook(); }
+    for (let i = s.fx.length - 1; i >= 0; i--){ const q = s.fx[i]; q.t += dt; q.y += q.vy * dt; if (q.t > q.life) s.fx.splice(i, 1); }
+  }
+  function step(){
+    if (s.bottle){
+      if (s.over > 0) return "The tank is full. Water is running over the side.";
+      return s.flow > 0 ? "Pouring into the tank. Let go to stand the bottle back up." : "Tip the bottle over the tank: drag it to the right. Let go to stop.";
+    }
+    if (s.cooked) return "Ready. Eat it now, or pack it away in the bag.";
+    if (!s.cup && Dispenser.st.water <= 0.001) return "The tank is empty. Drag a Blue Water bottle from your bag onto the dispenser, then tip it in.";
+    if (!s.cup) return "Unzip your bag and drag a noodle cup onto the tray.";
+    if (s.steep > 0) return `Steeping under the lid. ${Math.ceil(s.steep)} s.`;
+    if (s.lid < 1) return "Peel the lid: drag the foil tab across the cup.";
+    if (s.fill < 0.02) return "Drag the packets into the cup (spare packets can come from the bag too), then hold the pour button until the water reaches the line.";
+    if (s.fill > 1.1) return "Too much! It's spilling over. Let it steep.";
+    return s.fill >= 0.9 ? "That's at the line. Put the lid back to let it steep." : "Keep pouring up to the line.";
+  }
+  return {s, reset, takeBottle, putBottle, pourAngle, placeCup, addPackets, putBack, peel, dropIn, startSteep, eatNow, keep, update, step, MAX_PACKETS};
+})();
+
+const CookUI = (() => {
+  const panel = $("cookPanel"), cv2 = $("station"), c = cv2.getContext("2d"), acts = $("cookActs");
+  let lastKey = "", drag = null, W = 320, Hh = 390;
+  const s = Station.s;
+  // the original dispenser layout at full size, pushed down by OFF to make room for the tank and the bottle above it
+  const OFF = 150, BS = 1.15;
+  const geo = () => { const cx = W * 0.46; return {cx, top: OFF + 124, bot: OFF + 214, rt: 50, rb: 36, ry: 13,
+    tx0: cx - 50, tx1: cx + 50, ty0: 92, ty1: OFF, hy0: OFF, hy1: OFF + 50, sp: OFF + 62,
+    px: cx - 24, py: 48}; };
+  const neck = (g, tilt) => { const a = tilt * Math.PI / 180; return {x: g.px + 32 * BS * Math.sin(a), y: g.py - 32 * BS * Math.cos(a)}; };
+  function portrait(){ return touchMode && matchMedia("(orientation: portrait)").matches; }
+  function open(){
+    if (G.state !== "play" || G.cookOpen) return;
+    if (G.invOpen) InvUI.close();              // the bag can only be in one place
+    G.cookOpen = true; panel.hidden = false; document.body.classList.add("cookopen");
+    InvUI.moveBag($("cookBag"));
+    Input.mouse.down = false; lastKey = ""; s.note = "";
+  }
+  function close(){
+    if (!G.cookOpen) return;
+    G.cookOpen = false; panel.hidden = true; document.body.classList.remove("cookopen");
+    InvUI.moveBag($("bagHome"));
+    s.pouring = false; drag = null; s.tipping = false; Station.putBottle();
+  }
+  // something dragged out of the bag and let go over the dispenser view
+  function overStation(x, y){ const r = cv2.getBoundingClientRect(); return G.cookOpen && x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; }
+  function hover(x, y){ cv2.classList.toggle("dropping", !!(x != null && overStation(x, y))); }
+  function dropFromBag(c, i, x, y){
+    if (!overStation(x, y)) return false;
+    const it = Inv.get(c, i); if (!it) return true;
+    s.note = "";
+    if (it.type === "food") Station.placeCup(c, i);
+    else if (it.type === "packets") Station.addPackets(c, i);
+    else if (it.type === "water") Station.takeBottle(c, i);
+    else if (it.type === "cooked") s.note = "That's already cooked.";
+    else s.note = "That doesn't go in the dispenser.";
+    lastKey = "";
+    return true;
+  }
+  const toggle = () => (G.cookOpen ? close() : open());
+  $("cookClose").onclick = close;
+
+  function renderActs(){
+    const boil = Dispenser.boiling(), st = Dispenser.st;
+    const key = [!!s.bottle, !!s.cup, !!s.cooked, s.lid >= 1, s.steep > 0, s.fill > 0.01, s.fill >= 0.25, boil, st.water > 0.001, s.note, s.added + s.tray.length, !boil && st.water > 0.001 ? Dispenser.secsLeft() : 0].join("|");
+    if (key === lastKey) return;
+    lastKey = key;
+    let h = "";
+    if (s.bottle) h = `<button class="ghost" data-act="putbottle">Put the bottle back</button>`;
+    if (s.cooked) h += `<button data-act="eatnow">Eat now</button><button class="ghost" data-act="keep">Put it in the bag</button>`;
+    else if (!s.cup) h += "";
+    else if (s.steep > 0) h += "";
+    else {
+      if (s.lid >= 1){
+        const pourLabel = st.water <= 0.001 ? "No water in the tank" : boil ? "Hold to pour" : `Heating, ${Dispenser.secsLeft()} s`;
+        h += `<button id="pourBtn" class="pour" ${boil ? "" : "disabled"}>${pourLabel}</button>`;
+        if (s.fill >= 0.25) h += `<button class="ghost" data-act="steep">Put the lid back</button>`;
+      }
+      if (s.fill <= 0.01) h += `<button class="ghost" data-act="putback">Put the cup back</button>`;
+    }
+    acts.innerHTML = h + (s.note ? `<p class="note">${s.note}</p>` : "");
+  }
+  acts.addEventListener("click", e => {
+    const b = e.target.closest("[data-act]"); if (!b) return;
+    s.note = "";
+    ({putbottle:Station.putBottle, putback:Station.putBack, steep:Station.startSteep, eatnow:Station.eatNow, keep:Station.keep})[b.dataset.act]();
+    lastKey = "";
+  });
+  acts.addEventListener("pointerdown", e => { if (e.target.id === "pourBtn" && !e.target.disabled){ e.preventDefault(); s.pouring = true; } });
+  const stopPour = () => { s.pouring = false; };
+  addEventListener("pointerup", stopPour); addEventListener("pointercancel", stopPour);
+
+  // hands-on bits: peel the lid, drag packets into the cup
+  const local = e => { const r = cv2.getBoundingClientRect(); return {x:e.clientX - r.left, y:e.clientY - r.top}; };
+  cv2.addEventListener("pointerdown", e => {
+    const p = local(e), g = geo();
+    if (s.bottle && Math.hypot(p.x - g.px, p.y - g.py) < 44 * BS){
+      drag = {kind:"bottle", id:e.pointerId, x0:p.x, y0:p.y, t0:s.tilt}; s.tipping = true; e.preventDefault(); return;
+    }
+    if (s.cup && s.lid < 1 && s.steep < 0){
+      const tx = g.cx + g.rt - s.lid * g.rt * 2, ty = g.top;
+      if (Math.hypot(p.x - tx, p.y - ty) < 30){ drag = {kind:"lid", id:e.pointerId, x0:p.x, lid0:s.lid}; e.preventDefault(); return; }
+    }
+    for (let k = s.tray.length - 1; k >= 0; k--){
+      const q = s.tray[k], x = q.u * W, y = q.v * Hh;
+      if (Math.abs(p.x - x) < 16 && Math.abs(p.y - y) < 18){ drag = {kind:"pk", id:e.pointerId, k, dx:x - p.x, dy:y - p.y}; e.preventDefault(); return; }
+    }
+    if (PanelScroll.start(e, panel)) e.preventDefault();
+  });
+  addEventListener("pointermove", e => {
+    if (!drag || drag.id !== e.pointerId) return;
+    const p = local(e), g = geo();
+    if (drag.kind === "bottle") s.tilt = clamp(drag.t0 + ((p.x - drag.x0) + (p.y - drag.y0) * 0.6) * 1.2, 0, 178);
+    else if (drag.kind === "lid") Station.peel(drag.lid0 + (drag.x0 - p.x) / (g.rt * 2));
+    else { const q = s.tray[drag.k]; if (q){ q.u = clamp((p.x + drag.dx) / W, 0.03, 0.97); q.v = clamp((p.y + drag.dy) / Hh, 0.06, 0.93); } }
+  });
+  function endDrag(e){
+    if (!drag || drag.id !== e.pointerId) return;
+    const d = drag; drag = null;
+    if (d.kind === "bottle") s.tipping = false;
+    if (d.kind !== "pk") return;
+    const q = s.tray[d.k], g = geo(); if (!q) return;
+    const x = q.u * W, y = q.v * Hh;
+    if (Math.abs(x - g.cx) < g.rt + 6 && y > g.top - 50 && y < g.top + 30 && s.cup){
+      if (s.lid < 1){ s.note = "Peel the lid off first."; lastKey = ""; q.v = 0.875; return; }
+      if (s.steep > 0 || s.fill > 0.01){ s.note = "Packets go in before the water."; lastKey = ""; q.v = 0.875; return; }
+      Station.dropIn(d.k);
+    }
+  }
+  addEventListener("pointerup", endDrag); addEventListener("pointercancel", endDrag);
+
+  function wavy(x0, x1, y, amp, ph){ c.beginPath(); for (let x = x0; x <= x1; x += 3) c.lineTo(x, y + Math.sin(x * 0.35 + ph) * amp); c.stroke(); }
+  function cupBody(g){
+    c.beginPath(); c.moveTo(g.cx - g.rt, g.top); c.lineTo(g.cx - g.rb, g.bot); c.quadraticCurveTo(g.cx, g.bot + 6, g.cx + g.rb, g.bot); c.lineTo(g.cx + g.rt, g.top); c.closePath();
+    const gr = c.createLinearGradient(g.cx - g.rt, 0, g.cx + g.rt, 0);
+    gr.addColorStop(0, "#bdb49c"); gr.addColorStop(0.35, "#ece5d2"); gr.addColorStop(1, "#a79e86");
+    c.fillStyle = gr; c.fill();
+    c.save(); c.clip();
+    c.fillStyle = "#b3372a"; c.fillRect(g.cx - 60, g.top + 30, 120, 22);
+    c.fillStyle = "#f1e6d0"; c.font = `700 11px ${FONT}`; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText("NOODLE", g.cx, g.top + 41);
+    c.restore();
+  }
+  function contents(g, fill, cooked, flecks){
+    c.save(); c.beginPath(); c.ellipse(g.cx, g.top, g.rt - 2, g.ry - 1.5, 0, 0, 7); c.clip();
+    c.fillStyle = "#2a241a"; c.fillRect(g.cx - g.rt, g.top - g.ry, g.rt * 2, g.ry * 2);
+    c.fillStyle = "#e3c56d"; c.fillRect(g.cx - 38, g.top - 9, 76, 18);
+    c.strokeStyle = "#b58f37"; c.lineWidth = 1; for (let k = -1; k <= 1; k++) wavy(g.cx - 38, g.cx + 38, g.top + k * 5, 1.5, k);
+    const r = mulberry32(7);
+    for (let k = 0; k < flecks * 9; k++){ c.fillStyle = ["#c9542a", "#e08a3a", "#6fae4a", "#d98a3a"][k % 4]; c.fillRect(g.cx - 34 + r() * 68, g.top - 8 + r() * 16, k % 4 > 1 ? 2.5 : 1.5, k % 4 > 1 ? 2.5 : 1.5); }
+    if (fill > 0 || cooked){
+      const a = cooked ? 0.85 : Math.min(1, fill) * 0.8;
+      c.fillStyle = `rgba(168,96,42,${a})`; c.fillRect(g.cx - g.rt, g.top - g.ry, g.rt * 2, g.ry * 2);
+      if (cooked || fill > 0.6){ c.strokeStyle = "#f0d57e"; c.lineWidth = 1.6; for (let k = -1; k <= 1; k++) wavy(g.cx - 34, g.cx + 30, g.top + k * 5 + 1, 2.4, k * 2 + G.time * 0.6); }
+      if (cooked || flecks){ c.fillStyle = "#6fae4a"; c.beginPath(); c.arc(g.cx - 14, g.top - 4, 2.2, 0, 7); c.arc(g.cx + 20, g.top + 3, 2.2, 0, 7); c.fill(); c.fillStyle = "#d98a3a"; c.fillRect(g.cx + 6, g.top - 6, 3.5, 3.5); }
+    }
+    c.restore();
+    c.strokeStyle = "#8f866e"; c.lineWidth = 2; c.beginPath(); c.ellipse(g.cx, g.top, g.rt, g.ry, 0, 0, 7); c.stroke();
+  }
+  function foil(g, amount, skew){
+    // the remaining foil covers the cup from the left edge to the peel line
+    const edge = g.cx + g.rt - amount * g.rt * 2;
+    c.save(); c.beginPath(); c.ellipse(g.cx, g.top + skew, g.rt + 1, g.ry + 0.5, 0, 0, 7); c.clip();
+    c.fillStyle = "#b9bec4"; c.fillRect(g.cx - g.rt - 2, g.top - g.ry - 2 + skew, edge - (g.cx - g.rt - 2), g.ry * 2 + 4);
+    c.fillStyle = "#b3372a"; c.beginPath(); c.arc(g.cx - 6, g.top + skew, 7, 0, 7); c.fill();
+    c.fillStyle = "#e6e9ec"; c.fillRect(g.cx - g.rt, g.top - 2 + skew, edge - (g.cx - g.rt), 1);
+    c.restore();
+    if (amount > 0.02 && amount < 1){
+      // the curl of peeled foil standing up at the peel line
+      c.fillStyle = "#dfe3e7"; c.strokeStyle = "#8d949b"; c.lineWidth = 1;
+      c.beginPath(); c.moveTo(edge, g.top - g.ry + 2); c.quadraticCurveTo(edge + 10, g.top - 26, edge + 4 + amount * 30, g.top - 34);
+      c.lineTo(edge + 8 + amount * 30, g.top - 30); c.quadraticCurveTo(edge + 14, g.top - 12, edge + 2, g.top + g.ry - 1); c.closePath(); c.fill(); c.stroke();
+    }
+    if (amount < 1){
+      const tx = edge, ty = g.top;
+      c.fillStyle = "#e6e9ec"; c.strokeStyle = "#6d747b"; c.beginPath(); c.moveTo(tx, ty - 5); c.lineTo(tx + 12, ty - 2); c.lineTo(tx + 12, ty + 4); c.lineTo(tx, ty + 6); c.closePath(); c.fill(); c.stroke();
+    }
+  }
+  function drawTank(g, st, boil){
+    const {tx0, tx1, ty0, ty1} = g, level = st.water / Dispenser.CAP, surf = ty1 - 3 - level * (ty1 - ty0 - 8);
+    // water
+    if (st.water > 0.001){
+      const wg = c.createLinearGradient(0, surf, 0, ty1);
+      wg.addColorStop(0, "rgba(90,175,240,0.75)"); wg.addColorStop(1, "rgba(30,110,190,0.85)");
+      c.fillStyle = wg; c.fillRect(tx0 + 3, surf + Math.sin(G.time * 5) * 0.8, tx1 - tx0 - 6, ty1 - 3 - surf);
+      c.fillStyle = "rgba(200,235,255,0.6)"; c.fillRect(tx0 + 3, surf, tx1 - tx0 - 6, 1.5);
+      if (boil || st.heat > 0.6){
+        c.fillStyle = "rgba(220,240,255,0.7)";
+        for (let k = 0; k < (boil ? 10 : 4); k++){ const bx = tx0 + 8 + ((k * 37 + G.time * 40 * (1 + k % 3)) % (tx1 - tx0 - 16)), by = ty1 - 5 - ((G.time * 30 * (1 + k % 2) + k * 13) % Math.max(4, ty1 - 6 - surf)); c.beginPath(); c.arc(bx, by, 1.4 + (k % 2), 0, 7); c.fill(); }
+      }
+    }
+    // glass: clear sides, graduation marks, open top with a rim
+    c.strokeStyle = "rgba(220,235,245,0.55)"; c.lineWidth = 2; c.beginPath(); c.moveTo(tx0, ty0); c.lineTo(tx0, ty1); c.lineTo(tx1, ty1); c.lineTo(tx1, ty0); c.stroke();
+    c.fillStyle = "rgba(220,235,245,0.08)"; c.fillRect(tx0, ty0, tx1 - tx0, ty1 - ty0);
+    c.fillStyle = "rgba(255,255,255,0.18)"; c.fillRect(tx0 + 5, ty0 + 4, 3, ty1 - ty0 - 10);
+    c.strokeStyle = "rgba(220,235,245,0.4)"; c.lineWidth = 1;
+    for (let k = 1; k < Dispenser.CAP; k++){ const y = ty1 - 3 - k / Dispenser.CAP * (ty1 - ty0 - 8); c.beginPath(); c.moveTo(tx1 - 12, y); c.lineTo(tx1 - 3, y); c.stroke(); }
+    c.fillStyle = "#9aa1a7"; c.fillRect(tx0 - 3, ty0 - 3, 10, 4); c.fillRect(tx1 - 7, ty0 - 3, 10, 4);
+    if (s.over > 0){ c.fillStyle = "rgba(120,190,245,0.8)"; for (let k = 0; k < 3; k++){ const yy = ty0 + ((G.time * 70 + k * 18) % (ty1 - ty0)); c.beginPath(); c.arc(tx1 + 2, yy, 2, 0, 7); c.fill(); } }
+    if (s.bottle) drawBottle(g, surf);
+  }
+  function drawBottle(g, surf){
+    const b = s.bottle.item, a = s.tilt * Math.PI / 180;
+    // bottle outline in its own frame: bottom at +34, shoulder at -18, open neck at -32
+    const shape = () => { c.beginPath(); c.moveTo(-12, 34); c.lineTo(-12, -14); c.quadraticCurveTo(-12, -20, -5, -22); c.lineTo(-5, -32); c.lineTo(5, -32); c.lineTo(5, -22); c.quadraticCurveTo(12, -20, 12, -14); c.lineTo(12, 34); c.closePath(); };
+    // the water surface stays level whichever way the bottle tips
+    const pts = [[-12, 34], [12, 34], [12, -14], [-12, -14], [0, -32]].map(([x, y]) => ({x: g.px + BS * (x * Math.cos(a) - y * Math.sin(a)), y: g.py + BS * (x * Math.sin(a) + y * Math.cos(a))}));
+    const minY = Math.min(...pts.map(p => p.y)), maxY = Math.max(...pts.map(p => p.y));
+    const lvl = maxY - Math.min(1, b.amount * 1.05) * (maxY - minY);
+    c.save(); c.translate(g.px, g.py); c.rotate(a); c.scale(BS, BS);
+    shape(); c.fillStyle = "rgba(200,225,245,0.12)"; c.fill();
+    c.save(); shape(); c.clip();
+    c.scale(1 / BS, 1 / BS); c.rotate(-a); c.translate(-g.px, -g.py);
+    c.fillStyle = "rgba(31,126,196,0.85)"; c.fillRect(g.px - 60, lvl, 120, 120);
+    c.fillStyle = "rgba(170,220,255,0.7)"; c.fillRect(g.px - 60, lvl, 120, 1.5);
+    c.restore();
+    shape(); c.strokeStyle = "rgba(220,235,245,0.7)"; c.lineWidth = 1.6; c.stroke();
+    c.fillStyle = "#e8eef2"; c.fillRect(-12, 0, 24, 11);
+    c.fillStyle = "#1c6fb0"; c.font = `700 6px ${FONT}`; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText("BLUE WATER", 0, 5.5);
+    c.restore();
+    // hand-hold hint and the stream
+    if (!s.tipping && s.tilt < 1){ c.fillStyle = "rgba(230,232,226,0.55)"; c.font = `600 10px ${FONT}`; c.textAlign = "left"; c.fillText("drag to tip →", g.px + 18, g.py - 30); }
+    if (s.flow > 0){
+      const n = neck(g, s.tilt), w = 1.5 + s.flow * 7;
+      c.strokeStyle = "rgba(170,215,250,0.85)"; c.lineWidth = w; c.lineCap = "round"; c.beginPath(); c.moveTo(n.x, n.y);
+      for (let y = n.y; y < surf; y += 3) c.lineTo(n.x + (y - n.y) * 0.08 + Math.sin(y * 0.4 + G.time * 25) * 0.8, y);
+      c.stroke();
+      c.fillStyle = "rgba(220,240,255,0.8)"; for (let k = 0; k < 3; k++) c.fillRect(n.x - 6 + Math.random() * 12, surf - 2 - Math.random() * 5, 2, 2);
+    }
+  }
+  function draw(){
+    const r = cv2.getBoundingClientRect(), d = Math.min(window.devicePixelRatio || 1, 2);
+    const rw = Math.max(200, Math.round(r.width)), rh = Math.round(r.height) || 390;
+    if (cv2.width !== Math.round(rw * d) || cv2.height !== Math.round(rh * d)){ cv2.width = Math.round(rw * d); cv2.height = Math.round(rh * d); }
+    W = rw; Hh = rh;
+    c.setTransform(d, 0, 0, d, 0, 0);
+    const g = geo(), st = Dispenser.st, boil = Dispenser.boiling();
+    c.fillStyle = "#15181b"; c.fillRect(0, 0, W, Hh);
+    c.fillStyle = "#1b1f23"; for (let x = 0; x < W; x += 24) c.fillRect(x, 0, 1, Hh);
+    drawTank(g, st, boil);
+    // dispenser head and spout
+    c.fillStyle = "#c9ced2"; c.fillRect(g.cx - 62, g.hy0, 124, g.hy1 - g.hy0);
+    c.fillStyle = "#a9afb4"; c.fillRect(g.cx - 62, g.hy1 - 6, 124, 6);
+    c.fillStyle = "#0d1a22"; c.fillRect(g.cx - 50, g.hy0 + 10, 58, 22);
+    c.fillStyle = st.water <= 0.001 ? "#c8322b" : boil ? "#5fd08a" : "#e0a84a"; c.font = `700 11px ${FONT}`; c.textAlign = "center"; c.textBaseline = "middle";
+    c.fillText(st.water <= 0.001 ? "EMPTY" : boil ? "BOIL" : `HEAT ${Dispenser.secsLeft()}`, g.cx - 21, g.hy0 + 21);
+    c.fillStyle = s.pouring && boil ? "#c8322b" : "#8a2a22"; c.beginPath(); c.arc(g.cx + 32, g.hy0 + 21, 9, 0, 7); c.fill();
+    c.fillStyle = "#8f959a"; c.fillRect(g.cx - 7, g.hy1, 14, g.sp - g.hy1);
+    // tray
+    c.fillStyle = "#3a3f44"; c.fillRect(W * 0.04, g.bot + 4, W * 0.92, 8);
+    c.fillStyle = "#23272b"; for (let x = W * 0.04 + 4; x < W * 0.96; x += 8) c.fillRect(x, g.bot + 6, 4, 4);
+    if (s.spilled > 0){ c.fillStyle = `rgba(160,110,60,${0.5 * s.spilled})`; c.beginPath(); c.ellipse(g.cx, g.bot + 6, 70, 5, 0, 0, 7); c.fill(); }
+    // pouring stream
+    if (s.pouring && boil && s.cup && s.lid >= 1 && s.steep < 0){
+      c.strokeStyle = "rgba(200,230,255,0.85)"; c.lineWidth = 5; c.beginPath();
+      for (let y = g.sp; y < g.top; y += 4) c.lineTo(g.cx + Math.sin(y * 0.3 + G.time * 30) * 1.2, y);
+      c.stroke();
+      c.fillStyle = "rgba(220,240,255,0.8)"; for (let k = 0; k < 4; k++) c.fillRect(g.cx - 10 + Math.random() * 20, g.top - 4 - Math.random() * 6, 2, 2);
+    }
+    const target = s.cup || s.cooked;
+    if (target){
+      cupBody(g);
+      contents(g, s.cooked ? 1 : s.fill, !!s.cooked, Math.min(4, s.added) + (s.cup && s.cup.seasoned ? 2 : 0));
+      if (s.cup && s.lid < 1) foil(g, s.lid, 0);
+      if (s.steep > 0){ foil(g, 0, -2); c.strokeStyle = "#e0a84a"; c.lineWidth = 3; c.beginPath(); c.arc(g.cx + g.rt + 30, g.top - 30, 12, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (1 - s.steep / 4)); c.stroke(); }
+      if (s.spilled > 0){ c.fillStyle = "rgba(168,96,42,0.9)"; for (let k = 0; k < 3; k++){ const yy = g.top + ((G.time * 40 + k * 30) % 80); c.beginPath(); c.arc(g.cx - g.rt + 4 + k * 3 + (yy - g.top) * 0.15, yy, 2.2, 0, 7); c.fill(); } }
+      // steam
+      if (s.cooked || s.steep > 0 || (s.fill > 0.1 && s.cup)){
+        c.strokeStyle = "rgba(230,230,230,0.25)"; c.lineWidth = 3;
+        for (let k = 0; k < 3; k++){ c.beginPath(); for (let y = 0; y < 50; y += 4) c.lineTo(g.cx - 20 + k * 20 + Math.sin(y * 0.15 + G.time * 3 + k) * 5, g.top - 16 - y); c.stroke(); }
+      }
+    } else {
+      c.strokeStyle = "rgba(214,217,211,0.25)"; c.setLineDash([5, 4]); c.lineWidth = 1.5;
+      c.beginPath(); c.moveTo(g.cx - g.rt, g.top); c.lineTo(g.cx - g.rb, g.bot); c.lineTo(g.cx + g.rb, g.bot); c.lineTo(g.cx + g.rt, g.top); c.closePath(); c.stroke(); c.setLineDash([]);
+    }
+    if (s.lidOff){ c.fillStyle = "#b9bec4"; c.strokeStyle = "#7d848b"; c.beginPath(); c.moveTo(W * 0.86, g.bot + 2); c.lineTo(W * 0.83, g.bot - 8); c.lineTo(W * 0.88, g.bot - 14); c.lineTo(W * 0.93, g.bot - 6); c.lineTo(W * 0.91, g.bot + 2); c.closePath(); c.fill(); c.stroke(); }
+    // fill gauge beside the cup, with the fill line
+    if (s.cup && s.lid >= 1){
+      const gx = g.cx + g.rt + 18, gy0 = g.top, gh = g.bot - g.top, lvl = Math.min(1.3, s.fill) / 1.3;
+      c.fillStyle = "#0b0d0f"; c.fillRect(gx, gy0, 10, gh);
+      c.fillStyle = s.fill > 1.1 ? "#c8322b" : "#3fa9f5"; c.fillRect(gx, gy0 + gh * (1 - lvl), 10, gh * lvl);
+      const ly = gy0 + gh * (1 - 1 / 1.3);
+      c.strokeStyle = "#e6e8e2"; c.lineWidth = 2; c.beginPath(); c.moveTo(gx - 4, ly); c.lineTo(gx + 14, ly); c.stroke();
+      c.fillStyle = "#e6e8e2"; c.font = `600 10px ${FONT}`; c.textAlign = "left"; c.fillText("line", gx + 16, ly);
+    }
+    // packets on the tray
+    for (const q of s.tray){
+      const x = q.u * W, y = q.v * Hh;
+      c.save(); c.translate(x, y); c.rotate(q.kind === "s" ? -0.12 : 0.1);
+      c.fillStyle = q.kind === "s" ? "#b3372a" : "#4f8a3a"; c.fillRect(-12, -15, 24, 30);
+      c.fillStyle = "rgba(0,0,0,0.25)"; for (let k = -12; k < 12; k += 3) c.fillRect(k, -15, 1.5, 3);   // tear-off serration
+      c.fillStyle = "rgba(241,230,208,0.85)"; c.fillRect(-9, -9, 18, 2);
+      if (q.kind === "s"){ c.fillStyle = "#f1e6d0"; for (let k = 0; k < 7; k++) c.fillRect(-6 + (k * 5) % 12, -2 + ((k * 7) % 11), 2, 2); }
+      else { c.fillStyle = "#b8e08a"; c.beginPath(); c.ellipse(-3, 4, 5, 3, -0.5, 0, 7); c.fill(); c.fillStyle = "#e8a060"; c.fillRect(3, 0, 5, 5); }
+      c.restore();
+    }
+    for (const q of s.fx){ if (q.y > 0) continue; c.fillStyle = q.c; c.fillRect(g.cx + (q.u - 0.5) * 110, g.top + q.y, q.sz, q.sz); }
+  }
+  function refresh(){
+    if (!G.cookOpen) return;
+    const st = Dispenser.st;
+    $("tankFill").style.width = (st.water / Dispenser.CAP * 100) + "%";
+    $("tankText").textContent = `${st.water.toFixed(1)} of ${Dispenser.CAP} bottles, ${Dispenser.status().toLowerCase()}`;
+    $("stepText").textContent = Station.step();
+    renderActs(); draw();
+  }
+  return {open, close, toggle, refresh, dropFromBag, hover};
+})();
+
+const ActView = (() => {
+  const box = $("actView"), cv3 = $("actCv"), c = cv3.getContext("2d");
+  let crumbs = [], bubbles = [], lastBites = 0, crunch = 0;
+  $("actStop").onclick = () => Act.stop();
+  function refresh(dt){
+    const h = G.hands;
+    if (!!h === box.hidden) box.hidden = !h;
+    if (!h) { lastBites = 0; return; }
+    const r = cv3.getBoundingClientRect(), d = Math.min(window.devicePixelRatio || 1, 2), W = Math.round(r.width) || 240, Hh = Math.round(r.height) || 130;
+    if (cv3.width !== Math.round(W * d)){ cv3.width = Math.round(W * d); cv3.height = Math.round(Hh * d); }
+    c.setTransform(d, 0, 0, d, 0, 0); c.clearRect(0, 0, W, Hh);
+    const cx = W / 2, it = h.item;
+    let label;
+    if (h.kind === "drink"){
+      // the bottle, tipped toward Carrie, draining
+      const bw = 44, bh = 92, bx = cx - bw / 2, by = 20;
+      c.save(); c.translate(cx, by + bh / 2); c.rotate(-0.25 + Math.sin(h.t * 6) * 0.03); c.translate(-cx, -(by + bh / 2));
+      c.fillStyle = "rgba(200,225,245,0.12)"; c.strokeStyle = "rgba(220,235,245,0.6)"; c.lineWidth = 2;
+      c.beginPath(); c.roundRect ? c.roundRect(bx, by, bw, bh, 8) : c.rect(bx, by, bw, bh); c.fill(); c.stroke();
+      c.fillRect(cx - 9, by - 12, 18, 12); c.strokeRect(cx - 9, by - 12, 18, 12);
+      const lv = bh * it.amount;
+      c.save(); c.beginPath(); c.rect(bx + 2, by + bh - lv, bw - 4, lv); c.clip();
+      c.fillStyle = "#1f7ec4"; c.fillRect(bx, by, bw, bh);
+      c.fillStyle = "rgba(160,215,255,0.6)"; c.fillRect(bx, by + bh - lv, bw, 3 + Math.sin(h.t * 14) * 1.5);
+      c.restore();
+      c.fillStyle = "#e8eef2"; c.fillRect(bx + 2, by + 38, bw - 4, 16);
+      c.fillStyle = "#1c6fb0"; c.font = `700 8px ${FONT}`; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText("BLUE WATER", cx, by + 46);
+      if (Math.random() < dt * 14) bubbles.push({x:bx + 6 + Math.random() * (bw - 12), y:by + bh - 4, r:1 + Math.random() * 2.5});
+      c.fillStyle = "rgba(220,240,255,0.7)";
+      for (let i = bubbles.length - 1; i >= 0; i--){ const b = bubbles[i]; b.y -= dt * 70; if (b.y < by + bh - lv + 3){ bubbles.splice(i, 1); continue; } c.beginPath(); c.arc(b.x, b.y, b.r, 0, 7); c.fill(); }
+      c.restore();
+      c.fillStyle = "#e6e8e2"; c.font = `700 22px ${FONT}`; c.textAlign = "left"; c.fillText(pct(it.amount), cx + 40, 60);
+      c.fillStyle = "#80868a"; c.font = `600 11px ${FONT}`; c.fillText("left", cx + 40, 80);
+      label = "Drinking Blue Water";
+    } else if (it.type === "cooked"){
+      const v = Act.values(it), p = h.biteT / v.biteTime;
+      const top = 84, rt = 46, rb = 34, bot = 128;
+      // steam
+      c.strokeStyle = "rgba(230,230,230,0.22)"; c.lineWidth = 3;
+      for (let k = 0; k < 3; k++){ c.beginPath(); for (let y = 0; y < 40; y += 4) c.lineTo(cx - 24 + k * 22 + Math.sin(y * 0.15 + h.t * 3 + k) * 5, top - 10 - y); c.stroke(); }
+      // cup
+      c.beginPath(); c.moveTo(cx - rt, top); c.lineTo(cx - rb, bot); c.lineTo(cx + rb, bot); c.lineTo(cx + rt, top); c.closePath();
+      const gr = c.createLinearGradient(cx - rt, 0, cx + rt, 0); gr.addColorStop(0, "#bdb49c"); gr.addColorStop(0.35, "#ece5d2"); gr.addColorStop(1, "#a79e86");
+      c.fillStyle = gr; c.fill(); c.fillStyle = "#b3372a"; c.fillRect(cx - rt + 5, top + 16, rt * 2 - 10, 12);
+      // broth with fewer noodles as it goes
+      c.save(); c.beginPath(); c.ellipse(cx, top, rt - 2, 10, 0, 0, 7); c.clip();
+      c.fillStyle = "#a8602a"; c.fillRect(cx - rt, top - 12, rt * 2, 24);
+      c.strokeStyle = "#f0d57e"; c.lineWidth = 1.6;
+      const strands = Math.ceil(it.portion * 5);
+      for (let k = 0; k < strands; k++){ c.beginPath(); for (let x = cx - 36; x <= cx + 34; x += 3) c.lineTo(x, top - 6 + k * 3 + Math.sin(x * 0.3 + k * 2 + h.t) * 2); c.stroke(); }
+      c.fillStyle = "#6fae4a"; if (it.portion > 0.4){ c.beginPath(); c.arc(cx - 16, top - 3, 2.2, 0, 7); c.arc(cx + 18, top + 3, 2.2, 0, 7); c.fill(); }
+      c.restore();
+      c.strokeStyle = "#8f866e"; c.lineWidth = 2; c.beginPath(); c.ellipse(cx, top, rt, 10, 0, 0, 7); c.stroke();
+      // the fork: down into the cup, twirl, lift a dripping bundle, slurp
+      const fx = cx + 6;
+      let fy, lift = 0;
+      if (p < 0.3) fy = 8 + (top - 8) * (p / 0.3);
+      else if (p < 0.45) fy = top;
+      else { lift = Math.min(1, (p - 0.45) / 0.45); fy = top - lift * (top + 10); }
+      const twirl = p >= 0.3 && p < 0.45 ? Math.sin((p - 0.3) / 0.15 * Math.PI * 4) * 0.25 : 0;
+      if (p >= 0.3){
+        const tail = p < 0.8 ? top : top - (p - 0.8) / 0.2 * (top + 20);
+        c.lineWidth = 2.2;
+        for (let k = 0; k < 5; k++){
+          const sx = fx - 6 + k * 3;
+          c.strokeStyle = k % 2 ? "#f0d57e" : "#e2c46a";
+          c.beginPath(); c.moveTo(sx, fy + 2);
+          const len = Math.max(0, tail - fy);
+          for (let y = 0; y <= len; y += 3) c.lineTo(sx + Math.sin(y * 0.25 + h.t * 9 + k) * (2 + y * 0.05), fy + 2 + y);
+          c.stroke();
+          if (p > 0.5 && p < 0.85 && Math.random() < dt * 6) crumbs.push({x:sx, y:fy + len * 0.7, vx:0, vy:30, life:0.5, t:0, c:"#a8602a", r:1.6});
+        }
+      }
+      c.save(); c.translate(fx, fy); c.rotate(0.35 + twirl);
+      c.strokeStyle = "#c9ced3"; c.lineWidth = 3; c.beginPath(); c.moveTo(0, 0); c.lineTo(0, -70); c.stroke();
+      c.lineWidth = 1.6; for (let k = -1; k <= 1; k++){ c.beginPath(); c.moveTo(k * 4, 0); c.lineTo(k * 4, 12); c.stroke(); }
+      c.restore();
+      if (p > 0.8){ c.globalAlpha = Math.min(1, (p - 0.8) * 8) * (1 - (p - 0.8) * 3); c.fillStyle = "#f0d57e"; c.font = `italic 700 16px ${FONT}`; c.textAlign = "left"; c.fillText("slurp", cx + 36, 22); c.globalAlpha = 1; }
+      label = `Eating cooked noodles, ${pct(it.portion)} left`;
+    } else {
+      // a dry noodle brick, bitten down bite by bite
+      const v = Act.values(it), bx = cx - 62, by = 32, bw = 124, bh = 78;
+      if (h.bites !== lastBites){ lastBites = h.bites; crunch = 0.5; for (let k = 0; k < 16; k++) crumbs.push({x:bx + Math.min(bw - 10, (h.bites - 1) * 26 + 14) + Math.random() * 16, y:by + 6, vx:(Math.random() - 0.5) * 60, vy:-20 + Math.random() * 40, life:0.8, t:0, c: Math.random() < 0.5 ? "#e3c56d" : "#c7a44a", r:1.2 + Math.random() * 1.4}); }
+      const jig = crunch > 0 ? (Math.random() - 0.5) * 3 : 0;
+      c.save(); c.translate(jig, 0);
+      c.fillStyle = "#e3c56d"; c.beginPath(); c.roundRect ? c.roundRect(bx, by, bw, bh, 10) : c.rect(bx, by, bw, bh); c.fill();
+      c.strokeStyle = "#b58f37"; c.lineWidth = 1.4;
+      for (let row = 0; row < 6; row++){ c.beginPath(); for (let x = bx + 4; x <= bx + bw - 4; x += 3) c.lineTo(x, by + 8 + row * 12 + Math.sin(x * 0.35 + row * 1.7) * 3); c.stroke(); }
+      if (it.seasoned){ const r = mulberry32(3); c.fillStyle = "rgba(214,98,42,0.8)"; for (let k = 0; k < 70; k++) c.fillRect(bx + r() * bw, by + r() * bh, 1.6, 1.6); c.fillStyle = "#6fae4a"; for (let k = 0; k < 8; k++) c.fillRect(bx + 8 + r() * (bw - 16), by + 6 + r() * (bh - 12), 3, 3); }
+      // bite marks eaten out of the top edge
+      const done = Math.round((1 - it.portion) * v.bites);
+      c.fillStyle = "#0e1012";
+      for (let k = 0; k < done; k++){ const x = bx + 14 + k * 26; for (let t = -1; t <= 1; t++){ c.beginPath(); c.arc(x + t * 9, by - 2, 11, 0, 7); c.fill(); } c.beginPath(); c.arc(x, by + 10, 12, 0, 7); c.fill(); }
+      c.restore();
+      if (crunch > 0){ c.globalAlpha = Math.min(1, crunch * 3); c.fillStyle = "#e3c56d"; c.font = `italic 700 16px ${FONT}`; c.textAlign = "left"; c.fillText("crunch", cx + 20, 22); c.globalAlpha = 1; crunch -= dt; }
+      label = `Eating dry noodles${it.seasoned ? " with seasoning" : ""}, ${pct(it.portion)} left`;
+    }
+    for (let i = crumbs.length - 1; i >= 0; i--){ const q = crumbs[i]; q.t += dt; q.vy += 200 * dt; q.x += q.vx * dt; q.y += q.vy * dt; if (q.t > q.life){ crumbs.splice(i, 1); continue; } c.fillStyle = q.c; c.beginPath(); c.arc(q.x, q.y, q.r, 0, 7); c.fill(); }
+    const tx = $("actText"); if (tx.textContent !== label) tx.textContent = label;
+  }
+  return {refresh};
+})();
+
+/* ---------- 12. Flow: screens, loop, boot ---------- */
+let last = performance.now();
+const Screens = {
+  pause(on){
+    if (on && G.state === "play"){ G.state = "pause"; document.body.classList.remove("playing"); $("pauseScreen").hidden = false; $("resumeBtn").focus(); }
+    else if (!on && G.state === "pause"){ G.state = "play"; document.body.classList.add("playing"); $("pauseScreen").hidden = true; last = performance.now(); }
+  },
+  start(){
+    InvUI.close(); CookUI.close(); InvUI.reset(); reset();
+    G.state = "play"; document.body.classList.add("playing");
+    $("startScreen").hidden = true; $("deadScreen").hidden = true;
+    last = performance.now();
+  },
+  die(){
+    G.state = "dead"; InvUI.close(); CookUI.close(); G.hands = null; ActView.refresh(0); document.body.classList.remove("playing"); Input.clear();
+    const mm = Math.floor(G.time / 60), ss = Math.floor(G.time % 60).toString().padStart(2, "0");
+    $("deathCause").textContent = G.cause || "Carrie 03006 stopped checking in.";
+    $("deathStats").innerHTML = `Survived <b>${mm}:${ss}</b> and put down <b>${G.kills}</b> entit${G.kills === 1 ? "y" : "ies"}.`;
+    $("deadScreen").hidden = false; $("retryBtn").focus();
+  }
+};
+$("startBtn").onclick = Screens.start; $("retryBtn").onclick = Screens.start; $("resumeBtn").onclick = () => Screens.pause(false);
+$("tPause").onclick = () => Screens.pause(true);
+$("tMap").onclick = () => { G.showMap = !G.showMap; };
+$("tReload").onclick = () => { if (G.state === "play") Combat.startReload(); };
+$("tBag").onclick = () => InvUI.toggle();
+$("tPick").onclick = () => Pickups.pickUp();
+$("tDoor").onclick = () => Use.interact();
+
+function update(dt){
+  G.time += dt;
+  const p = G.player, intent = Input.read();
+  const slow = (G.invOpen ? 0.55 : 1) * (G.cookOpen ? 0.55 : 1) * (G.hands ? 0.6 : 1);
+  if (intent.mx || intent.my){ const sp = 158 * slow * dt; move(p, intent.mx * sp, intent.my * sp); }
+  Combat.update(dt, intent.firing && !G.invOpen && !G.cookOpen && !G.hands);   // her hands are busy
+  Act.update(dt);
+  Dispenser.update(dt);
+  Station.update(dt);
+  Needs.update(dt);
+  G.timers.flow -= dt; if (G.timers.flow <= 0){ G.timers.flow = 0.25; Flow.compute(); Flow.markExplored(); }
+  AI.update(dt);
+  Pickups.update(dt);
+  Doors.update(dt);
+  Use.update();
+  Spawn.update(dt);
+  G.timers.radio -= dt;
+  if (G.timers.radio <= 0){ G.timers.radio = 70 + Math.random() * 40; toast(radioLines[Math.floor(Math.random() * radioLines.length)], "#9aa3a8", 6); }
+  Lights.update(dt, G.time);
+  for (let i = G.particles.length - 1; i >= 0; i--){ const q = G.particles[i]; q.t += dt; q.x += q.vx * dt; q.y += q.vy * dt; q.vx *= 0.9; q.vy *= 0.9; if (q.t > q.life) G.particles.splice(i, 1); }
+  for (let i = G.toasts.length - 1; i >= 0; i--){ G.toasts[i].t += dt; if (G.toasts[i].t > G.toasts[i].life) G.toasts.splice(i, 1); }
+  G.shake = Math.max(0, G.shake - dt * 25); G.hurtFlash = Math.max(0, G.hurtFlash - dt); G.muzzle = Math.max(0, G.muzzle - dt);
+  G.cam.x = p.x - vw / S / 2 + (Math.random() - 0.5) * G.shake;
+  G.cam.y = p.y - vh / S / 2 + (Math.random() - 0.5) * G.shake;
+  // context buttons for touch
+  const pb = $("tPick"); if (pb.hidden === !!G.nearItem) pb.hidden = !G.nearItem;
+  const db = $("tDoor"), nd = G.nearDoor, show = !!nd || G.nearDisp;
+  if (db.hidden === show) db.hidden = !show;
+  if (show){ const lbl = G.nearDisp ? (G.cookOpen ? "Close dispenser" : "Dispenser") : nd.broken ? "Repair door" : nd.open ? "Close door" : "Open door"; if (db.textContent !== lbl) db.textContent = lbl; }
+  InvUI.refresh();
+  CookUI.refresh();
+  ActView.refresh(dt);
+  if (p.hp <= 0) Screens.die();
+}
+function frame(now){
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if (G.state === "play") update(dt);
+  if (G.player) Draw.frame();
+  requestAnimationFrame(frame);
+}
+
+resize();
+const ready = document.fonts && document.fonts.load ? document.fonts.load(`700 30px "Chakra Petch"`).catch(() => {}) : Promise.resolve();
+Promise.race([ready, new Promise(r => setTimeout(r, 1500))]).then(() => {
+  Input.setTouch(touchMode);
+  G.showMap = !touchMode;
+  Draw.buildMap();
+  InvUI.build();
+  reset();
+  G.cam.x = G.player.x - vw / S / 2; G.cam.y = G.player.y - vh / S / 2;
+  Input.mouse.x = vw / 2 + 120; Input.mouse.y = vh / 2;
+  requestAnimationFrame(frame);
+});
+$("startBtn").focus({preventScroll: true});
+})();
+</script>
+</body>
+</html>
